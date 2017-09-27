@@ -1,0 +1,86 @@
+/*--------------------------------------------------------------------------*/
+// A simple console application to get glove sensor info using callbacks
+//
+// Copyright (C) 2010, 5DT <Fifth Dimension Technologies>
+//
+/*--------------------------------------------------------------------------*/
+
+#include "fglove.h"
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>  // for usleep
+
+int iNumCallbackCalls = 0;
+
+// this function will be registered as our callback function in the glove driver
+void call_back(void* param)
+{
+   iNumCallbackCalls++;
+   fdGetSensorRaw(static_cast<fdGlove*>(param), 3);
+   
+   float gloveA_scaled[18];
+   fdGetSensorScaledAll(static_cast<fdGlove*>(param), gloveA_scaled);
+		
+   printf("A:%0.1f %0.1f||%0.1f||%0.1f %0.1f||%0.1f||%0.1f %0.1f||%0.1f||%0.1f %0.1f||%0.1f||%0.1f %0.1f",
+		gloveA_scaled[FD_THUMBNEAR],
+		gloveA_scaled[FD_THUMBFAR],
+		gloveA_scaled[FD_THUMBINDEX],
+		gloveA_scaled[FD_INDEXNEAR],
+		gloveA_scaled[FD_INDEXFAR],
+		gloveA_scaled[FD_INDEXMIDDLE],
+		gloveA_scaled[FD_MIDDLENEAR],
+		gloveA_scaled[FD_MIDDLEFAR],
+		gloveA_scaled[FD_MIDDLERING],
+		gloveA_scaled[FD_RINGNEAR],
+		gloveA_scaled[FD_RINGFAR],
+		gloveA_scaled[FD_RINGLITTLE],
+		gloveA_scaled[FD_LITTLENEAR],
+		gloveA_scaled[FD_LITTLEFAR]);
+				
+	printf(" >> %d\n", fdGetGesture(static_cast<fdGlove*>(param)));
+}
+
+int main( int argc, char** argv )
+{
+	char    *szPort    = NULL;
+	fdGlove *pGloveA    = NULL;
+	int      glovetype = FD_GLOVENONE;
+
+	// check that the arguments are correct
+	if (argc<2)
+	{
+		printf("\nUsage: callback <devicename>\n");
+		printf("Example: sudo ./callback /dev/usb/hiddev0\n\n");
+		return 0;
+	}
+	else
+	{
+		szPort = argv[1];
+	}
+
+	// Initialize glove
+	printf("\nAttempting to open glove A on %s .. ", szPort );
+	pGloveA = fdOpen(szPort);
+	if (pGloveA == NULL)
+	{
+		printf("failed.\n");
+		return -1;
+	}
+	printf("succeeded.\n");
+	
+	// Register callback function call_back() in glove driver pGloveA, and pass
+    //  pGloveA as a void pointer to the callback function when it is called
+	fdSetCallback(pGloveA, reinterpret_cast<void*>(&(call_back)), static_cast<void*>(pGloveA));
+	usleep(5000000); // sleep 5 seconds
+
+	// print the number of calls made to the callback function
+	printf("Number of callback calls: %i\n", iNumCallbackCalls);
+
+	// Close gloves
+	printf("\nClosing glove(s)...\n" );
+	fdClose(pGloveA);
+	printf("Glove(s) closed.\n\n");
+
+	return 0;
+}
+/*--------------------------------------------------------------------------*/

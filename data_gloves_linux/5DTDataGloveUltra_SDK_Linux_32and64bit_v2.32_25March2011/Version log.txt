@@ -1,0 +1,6 @@
+
+2.31 Updated examples. There are 3 examples: glove_info, polling and callback
+
+25 March 2011
+-------------
+2.32 Added 64 bit driver
