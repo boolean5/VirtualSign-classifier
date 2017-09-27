@@ -1,0 +1,4 @@
+"nenhuma",
+"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "L", "M", "N", "P", "R", "S", "T", "U", "V", "X", "Z",
+"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+"BicoPassaro", "BicoPato", "Concha", "GanchoDuplo", "GarraAberta", "GarraFechada", "MaoAberta", "PincaFechada", "Pistola", "PunaiseAberta", "PunaiseFechada"
