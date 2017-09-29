@@ -30,7 +30,6 @@ def create_dataset(path, deletedups=True, randomize=True):
 
             # Check for misplaced class-label column, properly swap columns/shift contents if so
             if df.iloc[:, 0].dtype == 'int64':
-                print('Rearranging data in ' + filename)
 
                 # Reorder columns, then change back to original names
                 cols = df.columns.tolist()
