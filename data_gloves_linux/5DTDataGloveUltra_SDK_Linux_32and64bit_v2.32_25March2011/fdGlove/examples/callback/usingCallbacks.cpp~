@@ -1,0 +1,208 @@
+/*--------------------------------------------------------------------------*/
+// A simple cross-platform console application to test the glove
+//
+// WIN32 must be defined when compiling for Windows.
+// For Visual C++ this is normally already defined.
+//
+// Copyright (C) 2000, 5DT <Fifth Dimension Technologies>
+/*--------------------------------------------------------------------------*/
+#include "fglove.h"
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>  // for usleep
+/*--------------------------------------------------------------------------*/
+
+int calls = 0;
+
+void call_back(void* param)
+{
+   calls++;
+   fdGetSensorRaw((fdGlove*)param, 3);
+   
+   float gloveA_scaled[18];
+   fdGetSensorScaledAll((fdGlove*)param, gloveA_scaled);
+		
+   printf("A:%0.1f %0.1f||%0.1f||%0.1f %0.1f||%0.1f||%0.1f %0.1f||%0.1f||%0.1f %0.1f||%0.1f||%0.1f %0.1f",
+		gloveA_scaled[FD_THUMBNEAR],
+		gloveA_scaled[FD_THUMBFAR],
+		gloveA_scaled[FD_THUMBINDEX],
+		gloveA_scaled[FD_INDEXNEAR],
+		gloveA_scaled[FD_INDEXFAR],
+		gloveA_scaled[FD_INDEXMIDDLE],
+		gloveA_scaled[FD_MIDDLENEAR],
+		gloveA_scaled[FD_MIDDLEFAR],
+		gloveA_scaled[FD_MIDDLERING],
+		gloveA_scaled[FD_RINGNEAR],
+		gloveA_scaled[FD_RINGFAR],
+		gloveA_scaled[FD_RINGLITTLE],
+		gloveA_scaled[FD_LITTLENEAR],
+		gloveA_scaled[FD_LITTLEFAR]);
+				
+	printf(" >> %d\n", fdGetGesture((fdGlove*)param));
+}
+
+int main( int argc, char** argv )
+{
+	char    *szPort    = NULL;
+	fdGlove *pGloveA    = NULL;
+	fdGlove *pGloveB    = NULL;
+	bool     showraw   = false;
+	int      glovetype = FD_GLOVENONE;
+	int      i;
+
+	if (argc<2)
+	{
+		printf( "Usage: testglove <devicename> -r\n" );
+		printf( "-r\tShow raw values instead of scaled\n");
+	}
+	else
+	{
+		// handle command line arguments
+		for ( i=1; i<argc; i++ )
+		{
+			if (!strcmp(argv[i], "-r"))
+				showraw = true;
+			else
+				szPort = argv[i];
+		}
+	}
+	if (!szPort)
+	{
+		szPort = "/dev/fglove";
+	}
+
+	// Initialize glove
+	printf( "Attempting to open glove A on %s .. ", szPort );
+	if (NULL == (pGloveA = fdOpen( szPort )))
+	{
+		printf( "failed.\n" );
+		return -1;
+	}
+	printf( "succeeded.\n" );
+
+	glovetype = fdGetGloveType(pGloveA);
+	switch (glovetype) {
+		case FD_GLOVE5UW:
+		case FD_GLOVE14UW: {
+			printf( "Attempting to open glove B on %s .. ", szPort );
+			// We open Glove B on exactly the same port...
+			if (NULL == (pGloveB = fdOpen( szPort )))
+			{
+				printf( "failed.\n" );
+				printf("Using only Glove A...\n");
+			} else {
+				printf( "succeeded.\n" );
+				printf(" Using Glove A and Glove B...\n");
+			}
+		} break;
+		
+		default:
+			printf("Glove A isn't wireless. Not opening Glove B.\n");
+			
+	}
+
+	//---------------------------------------------------------------------------------------
+	// Display Glove A data
+	printf("Glove A:\n");
+	
+	char *szType = "?";
+	glovetype = fdGetGloveType(pGloveA);
+	switch (glovetype) {
+	case FD_GLOVENONE:    szType = "None"; break;
+	case FD_GLOVE5U:      szType = "Data Glove 5 Ultra"; break;
+	case FD_GLOVE5UW:     szType = "Data Glove 5 Ultra W"; break;
+	case FD_GLOVE5U_USB:  szType = "Data Glove 5 Ultra USB"; break;
+	case FD_GLOVE7:       szType = "Data Glove 5"; break;
+	case FD_GLOVE7W:      szType = "Data Glove 5W"; break;
+	case FD_GLOVE16:      szType = "Data Glove 16"; break;
+	case FD_GLOVE16W:     szType = "Data Glove 16W"; break;
+	case FD_GLOVE14U:     szType = "DG14 Ultra serial"; break;
+	case FD_GLOVE14UW:    szType = "DG14 Ultra W"; break;
+	case FD_GLOVE14U_USB: szType = "DG14 Ultra USB"; break;
+	}
+	
+	printf( "glove type: %s\n", szType );
+	printf( "glove handedness: %s\n", fdGetGloveHand(pGloveA)==FD_HAND_RIGHT?"Right":"Left" );
+	printf( "data rate: %i\n", fdGetPacketRate(pGloveA));
+	// Display glove info
+	unsigned char buf[64];
+	fdGetGloveInfo( pGloveA, buf );
+	printf( "glove info: %s\n", (char*)buf );
+	
+	printf("-----------------------------------------------\n");
+	
+	//---------------------------------------------------------------------------------------
+	// Display Glove B data, if the glove is available
+	if (pGloveB != NULL) {
+		printf("Glove B:\n");
+		glovetype = fdGetGloveType(pGloveB);
+		switch (glovetype) {
+		case FD_GLOVENONE:    szType = "None"; break;
+		case FD_GLOVE5U:      szType = "Data Glove 5 Ultra"; break;
+		case FD_GLOVE5UW:     szType = "Data Glove 5 Ultra W"; break;
+		case FD_GLOVE5U_USB:  szType = "Data Glove 5 Ultra USB"; break;
+		case FD_GLOVE7:       szType = "Data Glove 5"; break;
+		case FD_GLOVE7W:      szType = "Data Glove 5W"; break;
+		case FD_GLOVE16:      szType = "Data Glove 16"; break;
+		case FD_GLOVE16W:     szType = "Data Glove 16W"; break;
+		case FD_GLOVE14U:     szType = "DG14 Ultra serial"; break;
+		case FD_GLOVE14UW:    szType = "DG14 Ultra W"; break;
+		case FD_GLOVE14U_USB: szType = "DG14 Ultra USB"; break;
+		}
+	
+		printf( "glove type: %s\n", szType );
+		printf( "glove handedness: %s\n", fdGetGloveHand(pGloveB)==FD_HAND_RIGHT?"Right":"Left" );
+		// Display glove info
+		fdGetGloveInfo( pGloveB, buf );
+		printf( "glove info: %s\n", (char*)buf );
+		
+		printf("-----------------------------------------------\n");
+	}
+	
+	//---------------------------------------------------------------------------------------
+	// Now continuously display the sensor data
+	
+	//unsigned short gloveA_raw[18];
+	//float gloveA_scaled[18];
+	
+	/*for ( i=0; i<5000; i++ )
+	{
+		fdGetSensorScaledAll(pGloveA, gloveA_scaled);
+		
+		printf("A:%0.1f %0.1f||%0.1f||%0.1f %0.1f||%0.1f||%0.1f %0.1f||%0.1f||%0.1f %0.1f||%0.1f||%0.1f %0.1f",
+			gloveA_scaled[FD_THUMBNEAR],
+			gloveA_scaled[FD_THUMBFAR],
+			gloveA_scaled[FD_THUMBINDEX],
+			gloveA_scaled[FD_INDEXNEAR],
+			gloveA_scaled[FD_INDEXFAR],
+			gloveA_scaled[FD_INDEXMIDDLE],
+			gloveA_scaled[FD_MIDDLENEAR],
+			gloveA_scaled[FD_MIDDLEFAR],
+			gloveA_scaled[FD_MIDDLERING],
+			gloveA_scaled[FD_RINGNEAR],
+			gloveA_scaled[FD_RINGFAR],
+			gloveA_scaled[FD_RINGLITTLE],
+			gloveA_scaled[FD_LITTLENEAR],
+			gloveA_scaled[FD_LITTLEFAR]);
+				
+		printf(" >> %d\n", fdGetGesture(pGloveA));
+			
+		//usleep(15000); 
+		usleep(1000); 
+
+	}*/
+
+	fdSetCallback(pGloveA, (void*)&(call_back), pGloveA);
+	//	usleep(15000000); 15 seconds
+	usleedp(5000000);
+	printf("calls: %i\n",calls);
+
+	// Close glove
+	printf( "closing glove(s)\n" );
+	fdClose( pGloveA );
+	fdClose( pGloveB );
+	printf( "glove(s) closed, goodbye\n" );
+
+	return 0;
+}
+/*--------------------------------------------------------------------------*/
