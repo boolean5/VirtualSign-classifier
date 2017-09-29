@@ -13,13 +13,13 @@ from utils import create_dataset
 SENSORS = 14
 BATCH_SIZE = 10
 EPOCHS = 100
-filter_size_1 = 3
-filter_size_2 = 4
-output_size_1 = 20
-output_size_2 = 10
+filter_size_1 = 2
+filter_size_2 = 5
+output_size_1 = 30
+output_size_2 = 20
 pool_size_1 = 2
 pool_size_2 = 1
-feature_map_size = 120
+feature_map_size = 200
 
 num_classes = 42    # TODO: Get this from the data
 
@@ -48,7 +48,7 @@ model.add(Conv1D(20, filter_size_1, input_shape=(SENSORS, 1), activation=relu))
 model.add(MaxPool1D(pool_size=pool_size_1, strides=1))
 # model.add(Dropout(0.5))
 model.add(Conv1D(10, filter_size_2, activation=relu))
-model.add(MaxPool1D(pool_size_2, strides=None))
+model.add(MaxPool1D(pool_size_2, strides=1))
 # model.add(Dropout(0.5))
 model.add(Flatten())
 model.add(Dense(feature_map_size, activation=relu))
