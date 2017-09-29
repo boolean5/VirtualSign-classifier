@@ -16,7 +16,7 @@ def duplicates(dataframe):
     return len(num_dups)
 
 
-def create_dataset(path, deletedups=False, randomize=True):
+def create_dataset(path, deletedups=True, randomize=True):
     import pandas as pd
     import os
 
