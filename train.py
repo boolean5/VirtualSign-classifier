@@ -1,9 +1,10 @@
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Dense, Conv1D, MaxPool1D, Flatten, Dropout
+from keras.layers import Dense, Conv1D, MaxPool1D, Flatten, Dropout, AveragePooling1D
 from keras.activations import relu, softmax
 from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
+from keras.callbacks import EarlyStopping, TensorBoard
 from keras.utils import np_utils
 from utils import create_dataset
 
@@ -14,7 +15,7 @@ SENSORS = 14
 BATCH_SIZE = 10
 EPOCHS = 100
 filter_size_1 = 2
-filter_size_2 = 5
+filter_size_2 = 4
 output_size_1 = 30
 output_size_2 = 20
 pool_size_1 = 2
@@ -30,7 +31,7 @@ x, y = np.hsplit(dataset, [-1])
 
 # Data pre-processing
 # TODO: Implement train-val-test split
-splitPoint = int(np.ceil(len(y) * 0.75))
+splitPoint = int(np.ceil(len(y) * 0.85))
 x_train, x_val = np.vsplit(x, [splitPoint])
 y_train, y_val = np.vsplit(y, [splitPoint])
 
@@ -41,6 +42,7 @@ x_val = np.expand_dims(x_val, axis=2)
 
 # Model building
 # TODO: Add multiple & varied filters: https://github.com/fchollet/keras/issues/1023
+# TODO: Test removing a convolutional layer
 model = Sequential()
 model.add(Conv1D(20, filter_size_1, input_shape=(SENSORS, 1), activation=relu))
 
@@ -49,6 +51,7 @@ model.add(MaxPool1D(pool_size=pool_size_1, strides=1))
 # model.add(Dropout(0.5))
 model.add(Conv1D(10, filter_size_2, activation=relu))
 model.add(MaxPool1D(pool_size_2, strides=1))
+# model.add(AveragePooling1D(pool_size_2, strides=1))
 # model.add(Dropout(0.5))
 model.add(Flatten())
 model.add(Dense(feature_map_size, activation=relu))
@@ -57,8 +60,20 @@ model.add(Dense(num_classes, activation=softmax))
 model.compile(loss=categorical_crossentropy,
               optimizer='adam',
               metrics=['accuracy'])
-
 model.summary()
 
+# callbacks = [EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=0)]
+# callbacks.append [TensorBoard(log_dir='./logs',
+#                          histogram_freq=1,
+#                          batch_size=10,
+#                          write_graph=True,
+#                          write_grads=True,
+#                          write_images=True)]
+
 # TODO: Check callbacks to history objects
-model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=1, validation_data=(x_val, y_val))
+model.fit(x_train,
+          y_train,
+          batch_size=BATCH_SIZE,
+          epochs=EPOCHS,
+          verbose=1,
+          validation_data=(x_val, y_val))
