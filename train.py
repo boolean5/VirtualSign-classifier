@@ -6,6 +6,8 @@ from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
 from keras.utils import np_utils
 from utils import create_dataset
+from keras.callbacks import ModelCheckpoint
+import h5py
 
 # Hyper-parameters
 # TODO: Distinguish between hyper-parameters and training parameters
@@ -60,5 +62,12 @@ model.compile(loss=categorical_crossentropy,
 
 model.summary()
 
+callbacks = [ModelCheckpoint('model.hdf5', monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=False, mode='min', period=1)]
+
 # TODO: Check callbacks to history objects
-model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=1, validation_data=(x_val, y_val))
+hist = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=1, validation_data=(x_val, y_val), callbacks=callbacks)
+
+min_val_loss_epoch = min(range(len(hist.history['val_loss'])), key=hist.history['val_loss'].__getitem__)
+min_val_loss = hist.history['val_loss'][min_val_loss_epoch]
+print('Minimum validation loss of %.4f at epoch %d.' % (min_val_loss, min_val_loss_epoch+1))
+

@@ -13,3 +13,6 @@
 # Ignore files with the ".o" extension
 *.o
 
+# Ignore files with the ".hdf5" extension
+*.hdf5
+
