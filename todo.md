@@ -1,0 +1,4 @@
+- [ ] k-fold cross validation (small dataset size, hyperparameter search)
+- [ ] Visualise w/ tf.tensorboard
+- [ ] insert new dataset
+- [ ] review architecture (add multiple filters)
