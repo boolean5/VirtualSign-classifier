@@ -2,6 +2,6 @@
 - [ ] Visualise w/ tf.tensorboard
 - [ ] insert new dataset
 - [ ] review architecture (add multiple filters)
-- [ ] create inferring script
+- [x] create inferring script
 - [ ] decide stopping strategy (try early stopping)
 - [ ] train-val-test
