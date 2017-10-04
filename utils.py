@@ -50,3 +50,41 @@ def create_dataset(path, deletedups=True, randomize=True):
         dataset = dataset.sample(frac=1).reset_index(drop=True)
 
     return dataset
+
+
+def build_sequential_v1(input_dim, output_dim):
+    from keras.models import Sequential
+    from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dropout, Dense
+    from keras.activations import relu, softmax
+
+    filter_size_1 = 2
+    filter_size_2 = 4
+    output_size_1 = 20
+    output_size_2 = 10
+    pool_size_1 = 2
+    pool_size_2 = 1
+    feature_map_size = 200
+
+    model = Sequential()
+
+    model.add(Conv1D(output_size_1, filter_size_1, input_shape=(input_dim, 1), activation=relu))
+    model.add(MaxPool1D(pool_size=pool_size_1, strides=1))
+    model.add(Dropout(0.5))
+
+    model.add(Conv1D(output_size_2, filter_size_2, activation=relu))
+    model.add(MaxPool1D(pool_size=pool_size_2, strides=1))
+    model.add(Dropout(0.5))
+
+    model.add(Flatten())
+    model.add(Dense(feature_map_size, activation=relu))
+    model.add(Dense(output_dim, activation=softmax))
+
+    return model
+
+
+def build_functional_v2():
+    pass
+
+
+def build_inception_like():
+    pass
