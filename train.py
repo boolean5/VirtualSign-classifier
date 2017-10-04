@@ -2,14 +2,14 @@ import numpy as np
 from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
 from keras.utils import np_utils
-from utils import create_dataset, build_sequential_v1
+from utils import create_dataset, build_sequential_v1, build_inception_like
 from keras.callbacks import ModelCheckpoint, TensorBoard
 import h5py
 
 # Hyper-parameters
 # TODO: Distinguish between hyper-parameters and training parameters
 SENSORS = 14
-BATCH_SIZE = 10
+BATCH_SIZE = 20
 EPOCHS = 100
 NUM_CLASSES = 42    # TODO: Get this from the data
 
@@ -30,7 +30,7 @@ x_train = np.expand_dims(x_train, axis=2)
 x_val = np.expand_dims(x_val, axis=2)
 
 # Model building
-model = build_sequential_v1(SENSORS, NUM_CLASSES)
+model = build_inception_like(SENSORS, NUM_CLASSES)
 
 model.compile(loss=categorical_crossentropy,
               optimizer='adam',
@@ -59,6 +59,7 @@ hist = model.fit(x_train,
                  batch_size=BATCH_SIZE,
                  epochs=EPOCHS, verbose=1,
                  validation_data=(x_val, y_val),
+                 # shuffle=True,
                  callbacks=callbacks)
 
 min_val_loss_epoch = min(range(len(hist.history['val_loss'])), key=hist.history['val_loss'].__getitem__)
