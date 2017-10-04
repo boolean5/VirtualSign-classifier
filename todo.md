@@ -1,8 +1,0 @@
-- [ ] k-fold cross validation test
-- [x] Visualise w/ tf.tensorboard
-- [ ] insert new dataset
-- [x] review architecture (add multiple filters)
-- [x] create inferring script
-- [ ] decide stopping strategy (try early stopping)
-- [ ] train-val-test
-- [ ] hyper-parameter search script

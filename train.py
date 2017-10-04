@@ -62,12 +62,22 @@ model.compile(loss=categorical_crossentropy,
 
 model.summary()
 
-callbacks = [ModelCheckpoint('model.hdf5', monitor='val_loss', verbose=0, save_best_only=True, save_weights_only=False, mode='min', period=1)]
+callbacks = [ModelCheckpoint('model.hdf5',
+                             monitor='val_loss',
+                             verbose=0,
+                             save_best_only=True,
+                             save_weights_only=False,
+                             mode='min',
+                             period=1)]
 
 # TODO: Check callbacks to history objects
-hist = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=1, validation_data=(x_val, y_val), callbacks=callbacks)
+hist = model.fit(x_train,
+                 y_train,
+                 batch_size=BATCH_SIZE,
+                 epochs=EPOCHS, verbose=1,
+                 validation_data=(x_val, y_val),
+                 callbacks=callbacks)
 
 min_val_loss_epoch = min(range(len(hist.history['val_loss'])), key=hist.history['val_loss'].__getitem__)
 min_val_loss = hist.history['val_loss'][min_val_loss_epoch]
 print('Minimum validation loss of %.4f at epoch %d.' % (min_val_loss, min_val_loss_epoch+1))
-
