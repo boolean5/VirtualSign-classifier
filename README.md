@@ -1,5 +1,6 @@
 # VirtualSign
 
+### Dataset format:
 Datasets consist of 15 columns. The first 14 correspond to the data gloves sensors input. The last one determines the hand configuration. Each hand configuration is measured 10 times.
 
 ### TODO list:
@@ -11,3 +12,6 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [ ] decide stopping strategy (try early stopping)
 - [ ] train-val-test
 - [ ] hyper-parameter search script
+- [ ] upload a graph of the model
+- [ ] tranfer model building function to utils.py
+- [ ] evaluation script
