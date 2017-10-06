@@ -4,14 +4,14 @@
 Datasets consist of 15 columns. The first 14 correspond to the data gloves sensors input. The last one determines the hand configuration. Each hand configuration is measured 10 times.
 
 ### TODO list:
-- [ ] k-fold cross validation test
-- [x] Visualise w/ tf.tensorboard
-- [ ] insert new dataset
 - [x] review architecture (add multiple filters)
+- [x] Visualise w/ tf.tensorboard
 - [x] create inferring script
+- [x] transfer model building function to utils.py
+- [ ] k-fold cross validation test
+- [ ] insert new dataset
 - [ ] decide stopping strategy (try early stopping)
 - [ ] train-val-test
 - [ ] hyper-parameter search script
-- [ ] upload a graph of the model
-- [ ] tranfer model building function to utils.py
 - [ ] evaluation script
+- [ ] upload a graph of the model
