@@ -58,7 +58,7 @@ def build_sequential_v1(input_dim, output_dim):
     from keras.activations import relu, softmax
 
     filter_size_1 = 2
-    filter_size_2 = 4
+    filter_size_2 = 5
     output_size_1 = 20
     output_size_2 = 10
     pool_size_1 = 2
@@ -69,11 +69,11 @@ def build_sequential_v1(input_dim, output_dim):
 
     model.add(Conv1D(output_size_1, filter_size_1, input_shape=(input_dim, 1), activation=relu))
     model.add(MaxPool1D(pool_size=pool_size_1, strides=1))
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
 
     model.add(Conv1D(output_size_2, filter_size_2, activation=relu))
     model.add(MaxPool1D(pool_size=pool_size_2, strides=1))
-    model.add(Dropout(0.5))
+    # model.add(Dropout(0.5))
 
     model.add(Flatten())
     model.add(Dense(feature_map_size, activation=relu))
@@ -94,8 +94,6 @@ def build_inception_like(input_dim, output_dim):
     # TODO: Create a for loop for multiple filter implementation
     # TODO: Consider 'same', 'valid' options for padding
 
-    # Naive Inception
-
     DROPOUT_RATE = 0.5
     ACTIVATION_FUNCTION = relu
     output_size = 32
@@ -115,15 +113,15 @@ def build_inception_like(input_dim, output_dim):
     conv_3 = Conv1D(output_size, 5, activation=ACTIVATION_FUNCTION)(conv_3)
     conv_3 = Dropout(DROPOUT_RATE)(conv_3)
 
-    pool_1 = AveragePooling1D(pool_size, strides=1, padding='same')(inputs)  # MaxPool can be also used
+    pool_1 = MaxPool1D(pool_size, strides=1, padding='same')(inputs)
     conv_4 = Conv1D(output_size, 1, activation=relu)(pool_1)
     conv_4 = Dropout(DROPOUT_RATE)(conv_4)
 
     output = concatenate([conv_1, conv_2, conv_3, conv_4], axis=1)
-    output = Dropout(DROPOUT_RATE)(output)
 
     flatten = Flatten()(output)
     dense = Dense(feature_map_size, activation=relu)(flatten)
+    dense = Dropout(DROPOUT_RATE)(dense)
     output = Dense(output_dim, activation=softmax)(dense)
 
     model = Model(inputs=inputs, output=output)

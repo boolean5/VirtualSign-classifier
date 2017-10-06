@@ -10,7 +10,7 @@ import h5py
 # TODO: Distinguish between hyper-parameters and training parameters
 SENSORS = 14
 BATCH_SIZE = 20
-EPOCHS = 100
+EPOCHS = 200
 NUM_CLASSES = 42    # TODO: Get this from the data
 
 # Data loading
@@ -48,18 +48,17 @@ callbacks = [ModelCheckpoint('saved_models/model.hdf5',
 
              TensorBoard(log_dir='./logs',
                          histogram_freq=1,
-                         batch_size=10,
+                         batch_size=BATCH_SIZE,
                          write_graph=True,
                          write_grads=True,
                          write_images=True)]
-
 
 hist = model.fit(x_train,
                  y_train,
                  batch_size=BATCH_SIZE,
                  epochs=EPOCHS, verbose=1,
                  validation_data=(x_val, y_val),
-                 # shuffle=True,
+                 shuffle=True,
                  callbacks=callbacks)
 
 min_val_loss_epoch = min(range(len(hist.history['val_loss'])), key=hist.history['val_loss'].__getitem__)
