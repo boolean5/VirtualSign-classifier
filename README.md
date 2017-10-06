@@ -13,6 +13,6 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [ ] decide stopping strategy (try early stopping)
 - [ ] train-val-test
 - [ ] hyper-parameter search script
-- [ ] evaluation script
+- [ ] batch evaluation script
 - [ ] upload a graph of the model
 - [ ] integrate in Virtual Sign
