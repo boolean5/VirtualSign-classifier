@@ -14,5 +14,6 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [ ] train-val-test
 - [ ] hyper-parameter search script
 - [ ] batch evaluation script
+- [ ] consider separating the knukle inputs with the finger inpits
 - [ ] upload a graph of the model
 - [ ] integrate in Virtual Sign
