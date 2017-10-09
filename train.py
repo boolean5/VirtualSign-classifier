@@ -2,7 +2,7 @@ import numpy as np
 from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
 from keras.utils import np_utils
-from utils import create_dataset, build_sequential_v1, build_inception_like
+from utils import *
 from keras.callbacks import ModelCheckpoint, TensorBoard
 import h5py
 
@@ -30,7 +30,7 @@ x_train = np.expand_dims(x_train, axis=2)
 x_val = np.expand_dims(x_val, axis=2)
 
 # Model building
-model = build_inception_like(SENSORS, NUM_CLASSES)
+model = build_inception_layer(SENSORS, NUM_CLASSES)
 
 model.compile(loss=categorical_crossentropy,
               optimizer='adam',

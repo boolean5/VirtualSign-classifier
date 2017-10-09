@@ -1,5 +1,6 @@
 /*---------------------------------------------------------------------*/
-
+// A simple console application to get glove sensor data. To save a line
+// of data press "s". The file where the data will be saved must be 
 // passed in as the first argument.
 // Created by Georgia :)
 /*---------------------------------------------------------------------*/
@@ -55,6 +56,9 @@ int main(int argc, char** argv) {
 
 	// Print instructions
 	printf("\nPress 's' to record sensor values, 'q' to quit.\n");
+
+	// Calibration instructions
+	printf("\nPlease calibrate the glove by performing some flexing movements before starting the creation of the dataset.\n");
 
 	// Change the default behavior of the terminal
 	// https://stackoverflow.com/questions/1798511/how-to-avoid-press-enter-with-any-getchar
