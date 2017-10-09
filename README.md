@@ -12,6 +12,7 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [ ] insert new dataset
 - [ ] decide stopping strategy (try early stopping)
 - [ ] train-val-test
+- [ ] create a model with an intermediate numper of parameters to 25k - 275k
 - [ ] hyper-parameter search script
 - [ ] batch evaluation script
 - [ ] consider separating the knukle inputs with the finger inpits

@@ -9,7 +9,7 @@ import h5py
 # Hyper-parameters
 # TODO: Distinguish between hyper-parameters and training parameters
 SENSORS = 14
-BATCH_SIZE = 20
+BATCH_SIZE = 50
 EPOCHS = 200
 NUM_CLASSES = 42    # TODO: Get this from the data
 

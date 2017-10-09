@@ -54,7 +54,7 @@ def create_dataset(path, deletedups=True, randomize=True):
 
 def build_sequential_v1(input_dim, output_dim):
     from keras.models import Sequential
-    from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dropout, Dense
+    from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dense
     from keras.activations import relu, softmax
 
     filter_size_1 = 2
@@ -62,18 +62,14 @@ def build_sequential_v1(input_dim, output_dim):
     output_size_1 = 20
     output_size_2 = 10
     pool_size_1 = 2
-    pool_size_2 = 1
     feature_map_size = 200
 
     model = Sequential()
 
     model.add(Conv1D(output_size_1, filter_size_1, input_shape=(input_dim, 1), activation=relu))
     model.add(MaxPool1D(pool_size=pool_size_1, strides=1))
-    # model.add(Dropout(0.5))
 
     model.add(Conv1D(output_size_2, filter_size_2, activation=relu))
-    model.add(MaxPool1D(pool_size=pool_size_2, strides=1))
-    # model.add(Dropout(0.5))
 
     model.add(Flatten())
     model.add(Dense(feature_map_size, activation=relu))
@@ -82,11 +78,57 @@ def build_sequential_v1(input_dim, output_dim):
     return model
 
 
-def build_sequential_v2():
-    pass
+def build_sequential_v2(input_dim, output_dim):
+    from keras.models import Sequential
+    from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dropout, Dense
+    from keras.activations import relu, softmax
+
+    output_size = 32
+    feature_map_size = 200
+
+    model = Sequential()
+    model.add(Conv1D(output_size, 1, input_shape=(input_dim, 1), activation=relu))
+    model.add(Conv1D(output_size, 3, input_shape=(input_dim, 1), activation=relu))
+    model.add(Conv1D(output_size, 3, input_shape=(input_dim, 1), activation=relu))
+
+    model.add(Flatten())
+    model.add(Dense(feature_map_size, activation=relu))
+    model.add(Dense(output_dim, activation=softmax))
+
+    return model
+
+def build_functional(input_dim, output_dim):
+    from keras.models import Model
+    from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dropout, Dense, Input, concatenate
+    from keras.activations import relu, softmax
+
+    DROPOUT_RATE = 0.5
+    ACTIVATION_FUNCTION = relu
+    output_size = 32
+    feature_map_size = 200
+
+    inputs = Input(shape=(input_dim, 1))
+
+    conv_1 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION)(inputs)
+    conv_1 = Dropout(DROPOUT_RATE)
+
+    conv_2 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION)(inputs)
+    conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION)(conv_2)
+    conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION)(conv_2)
+    conv_2 = Dropout(DROPOUT_RATE)(conv_2)
+
+    output = concatenate([conv_1, conv_2], axis=1)
+
+    flatten = Flatten()(output)
+    dense = Dense(feature_map_size, activation=relu)(flatten)
+    dense = Dropout(DROPOUT_RATE)(dense)
+    output = Dense(output_dim, activation=softmax)(dense)
+
+    model = Model(inputs=inputs, output=output)
+    return model
 
 
-def build_inception_like(input_dim, output_dim):
+def build_inception_layer(input_dim, output_dim):
     from keras.models import Model
     from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dropout, Dense, Input, concatenate
     from keras.activations import relu, softmax
