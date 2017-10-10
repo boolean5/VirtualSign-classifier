@@ -19,11 +19,13 @@ def duplicates(dataframe):
     return len(num_dups)
 
 
-def create_dataset(path, deletedups=True, randomize=True):
+def create_dataset(path, deletedups=True, randomize=True, drop_digits=None):
     import pandas as pd
     import os
 
-    sensors = ['col'+str(i) for i in range(14)] + ['id']
+    # sensors = ['col'+str(i) for i in range(14)] + ['id']
+    sensors = ['thu-near', 'thu-far', 'thu-ind', 'ind-near', 'ind-far', 'ind-mid', 'mid-near', 'mid-far',
+               'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far', 'id']
     frames = []
 
     for root, dirs, files in os.walk(path):
@@ -48,6 +50,9 @@ def create_dataset(path, deletedups=True, randomize=True):
 
     if randomize:
         dataset = dataset.sample(frac=1).reset_index(drop=True)
+
+    if drop_digits:
+        dataset = dataset.round(drop_digits)
 
     return dataset
 
@@ -97,6 +102,7 @@ def build_sequential_v2(input_dim, output_dim):
 
     return model
 
+
 def build_functional(input_dim, output_dim):
     from keras.models import Model
     from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dropout, Dense, Input, concatenate
@@ -110,7 +116,7 @@ def build_functional(input_dim, output_dim):
     inputs = Input(shape=(input_dim, 1))
 
     conv_1 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION)(inputs)
-    conv_1 = Dropout(DROPOUT_RATE)
+    conv_1 = Dropout(DROPOUT_RATE)(conv_1)
 
     conv_2 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION)(inputs)
     conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION)(conv_2)
