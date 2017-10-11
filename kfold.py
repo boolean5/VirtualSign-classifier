@@ -1,9 +1,11 @@
+import argparse
+
 import numpy as np
 from keras.losses import categorical_crossentropy
-from keras.optimizers import Adam
 from keras.utils import np_utils
-from utils import *
 from sklearn.model_selection import KFold
+
+from utils import *
 
 SENSORS = 14
 BATCH_SIZE = 50
@@ -14,19 +16,40 @@ NUM_CLASSES = 42    # TODO: Get this from the data
 seed = 7
 np.random.seed(seed)
 
+# Parsing from terminal
+parser = argparse.ArgumentParser(description='K-Fold validation script')
+parser.add_argument('dataset_path', help='Path of datasets folder')
+parser.add_argument('-m', '--model', help='Choose model to train on from [inception, seq_v1, seq_v2, functional]',
+                    type=str, default='inception')
+parser.add_argument('-k', '--kfolds', type=int, help='Number of folds', default=10)
+args = parser.parse_args()
+
+dataset_path = args.dataset_path
+model_type = args.model
+k = args.kfolds
+
 # Data loading
 # TODO: Tackle weird float conversion from pandas to numpy array
-dataset = create_dataset('datasets/').as_matrix()
+dataset = create_dataset(dataset_path).as_matrix()
 x, y = np.hsplit(dataset, [-1])
 x = np.expand_dims(x, axis=2)
 y = np_utils.to_categorical(y, NUM_CLASSES)
 
 # K-fold cross validation
-kfold = KFold(n_splits=10, shuffle=True, random_state=seed)
+kfold = KFold(n_splits=k, shuffle=True, random_state=seed)
 cvscores = []
 for train, test in kfold.split(x, y):
-    # create model
-    model = build_functional(SENSORS, NUM_CLASSES)
+    # Model building
+    if model_type == 'inception':
+        model = build_inception_layer(SENSORS, NUM_CLASSES)
+    elif model_type == 'seq_v1':
+        model = build_sequential_v1(SENSORS, NUM_CLASSES)
+    elif model_type == 'seq_v2':
+        model = build_sequential_v2(SENSORS, NUM_CLASSES)
+    elif model_type == 'functional':
+        model = build_functional(SENSORS, NUM_CLASSES)
+    else:
+        raise Exception('Expected one of [inception, seq_v1, seq_v2, functional] model type literals')
     # compile model
     model.compile(loss=categorical_crossentropy, optimizer='adam', metrics=['accuracy'])
     # fit model

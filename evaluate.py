@@ -1,7 +1,9 @@
 import argparse
+
 import numpy as np
 from keras.models import load_model
 from keras.utils import np_utils
+
 from utils import create_dataset
 
 # Parsing from terminal

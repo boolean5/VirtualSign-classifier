@@ -1,11 +1,11 @@
-import numpy as np
 import argparse
-from keras.losses import categorical_crossentropy
-from keras.optimizers import Adam
-from keras.utils import np_utils
-from utils import *
+
+import numpy as np
 from keras.callbacks import ModelCheckpoint, TensorBoard
-import h5py
+from keras.losses import categorical_crossentropy
+from keras.utils import np_utils
+
+from utils import *
 
 # Parsing from terminal
 parser = argparse.ArgumentParser(description='Train a hand configuration classifier')
@@ -51,11 +51,9 @@ elif model_type == 'functional':
 else:
     raise Exception('Expected one of [inception, seq_v1, seq_v2, functional] model type literals')
 
-
 model.compile(loss=categorical_crossentropy,
               optimizer='adam',
               metrics=['accuracy'])
-
 model.summary()
 
 callbacks = [ModelCheckpoint('saved_models/model_test.hdf5',
@@ -65,7 +63,6 @@ callbacks = [ModelCheckpoint('saved_models/model_test.hdf5',
                              save_weights_only=False,
                              mode='min',
                              period=1),
-
              TensorBoard(log_dir='./logs',
                          histogram_freq=1,
                          batch_size=BATCH_SIZE,

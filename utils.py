@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 def correct_dict():
     replacements = {'Ã£': 'ã', 'Ã¡': 'á', 'Ã¢': 'â', 'Ã§': 'ç', 'Ãª': 'ê', 'Ã©': 'é',
                     'Ã³': 'ó', 'Ã­': 'í', 'Ãº': 'ú', 'Ã': 'Á', 'Ãµ': 'õ'}
@@ -59,7 +60,7 @@ def create_dataset(path, deletedups=True, randomize=True, drop_digits=None):
 
 def build_sequential_v1(input_dim, output_dim):
     from keras.models import Sequential
-    from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dense
+    from keras.layers import Conv1D, MaxPool1D, Flatten, Dense
     from keras.activations import relu, softmax
 
     filter_size_1 = 2
@@ -85,7 +86,7 @@ def build_sequential_v1(input_dim, output_dim):
 
 def build_sequential_v2(input_dim, output_dim):
     from keras.models import Sequential
-    from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dropout, Dense
+    from keras.layers import Conv1D, Flatten, Dense
     from keras.activations import relu, softmax
 
     output_size = 32
@@ -105,7 +106,7 @@ def build_sequential_v2(input_dim, output_dim):
 
 def build_functional(input_dim, output_dim):
     from keras.models import Model
-    from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dropout, Dense, Input, concatenate
+    from keras.layers import Conv1D, Flatten, Dropout, Dense, Input, concatenate
     from keras.activations import relu, softmax
 
     DROPOUT_RATE = 0.5
@@ -136,7 +137,7 @@ def build_functional(input_dim, output_dim):
 
 def build_inception_layer(input_dim, output_dim):
     from keras.models import Model
-    from keras.layers import Conv1D, MaxPool1D, AveragePooling1D, Flatten, Dropout, Dense, Input, concatenate
+    from keras.layers import Conv1D, MaxPool1D, Flatten, Dropout, Dense, Input, concatenate
     from keras.activations import relu, softmax
 
     # TODO: Create a for loop for multiple filter implementation

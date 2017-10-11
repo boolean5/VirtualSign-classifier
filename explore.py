@@ -1,10 +1,19 @@
-import numpy as np
-import pandas as pd
+import argparse
+
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
+
 from utils import create_dataset
 
-dataset = create_dataset('datasets/higher_precision_datasets')
+# Parsing from terminal
+parser = argparse.ArgumentParser(description='Dataset exploration: Range & standard deviation heatmaps, '
+                                             'hand configuration box plots')
+parser.add_argument('dataset_path', help='Path of datasets folder')
+args = parser.parse_args()
+dataset_path = args.dataset_path
+
+dataset = create_dataset(dataset_path)
 
 grouped = dataset.groupby(['id'], as_index=True)
 ranges = grouped.apply(lambda g: g.max() - g.min())
