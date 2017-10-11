@@ -56,7 +56,7 @@ model.compile(loss=categorical_crossentropy,
               metrics=['accuracy'])
 model.summary()
 
-callbacks = [ModelCheckpoint('saved_models/model_test.hdf5',
+callbacks = [ModelCheckpoint('saved_models/' + model_type + '.hdf5',
                              monitor='val_loss',
                              verbose=0,
                              save_best_only=True,

@@ -14,7 +14,7 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [x] name columns appropriately
 - [x] implement exploration/visualization scripts
 - [x] batch evaluation script
-- [ ] use argparse to get inputs in all scripts
+- [x] use argparse to get inputs in all scripts
 - [ ] decide modeling name scheme
 - [ ] hyper-parameter search script
 - [ ] insert new dataset
