@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from utils import create_dataset
 
-dataset = create_dataset('higher_precision_datasets/')
+dataset = create_dataset('datasets/higher_precision_datasets')
 
 grouped = dataset.groupby(['id'], as_index=True)
 ranges = grouped.apply(lambda g: g.max() - g.min())
@@ -26,4 +26,3 @@ for name, groups in dataset.groupby(['id']):
     groups.drop('id', axis=1).boxplot()
     plt.title(name)
     plt.show()
-
