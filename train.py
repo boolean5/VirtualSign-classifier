@@ -1,4 +1,5 @@
 import numpy as np
+import argparse
 from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
 from keras.utils import np_utils
@@ -6,8 +7,18 @@ from utils import *
 from keras.callbacks import ModelCheckpoint, TensorBoard
 import h5py
 
+# Parsing from terminal
+parser = argparse.ArgumentParser(description='Train a hand configuration classifier')
+parser.add_argument('dataset_path', help='Path of datasets folder')
+parser.add_argument('-m', '--model', help='Choose model to train on from [inception, seq_v1, seq_v2, functional]',
+                    type=str, default='inception')
+args = parser.parse_args()
+
+dataset_path = args.dataset_path
+model_type = args.model
+
+
 # Hyper-parameters
-# TODO: Distinguish between hyper-parameters and training parameters
 SENSORS = 14
 BATCH_SIZE = 50
 EPOCHS = 200
@@ -15,11 +26,10 @@ NUM_CLASSES = 42    # TODO: Get this from the data
 
 # Data loading
 # TODO: Tackle weird float conversion from pandas to numpy array
-dataset = create_dataset('datasets/old_datasets').as_matrix()
-x, y = np.hsplit(dataset, [-1])
+dataset = create_dataset(dataset_path).as_matrix()
 
 # Data pre-processing
-# TODO: Implement train-val-test split
+x, y = np.hsplit(dataset, [-1])
 splitPoint = int(np.ceil(len(y) * 0.75))
 x_train, x_val = np.vsplit(x, [splitPoint])
 y_train, y_val = np.vsplit(y, [splitPoint])
@@ -30,7 +40,17 @@ x_train = np.expand_dims(x_train, axis=2)
 x_val = np.expand_dims(x_val, axis=2)
 
 # Model building
-model = build_inception_layer(SENSORS, NUM_CLASSES)
+if model_type == 'inception':
+    model = build_inception_layer(SENSORS, NUM_CLASSES)
+elif model_type == 'seq_v1':
+    model = build_sequential_v1(SENSORS, NUM_CLASSES)
+elif model_type == 'seq_v2':
+    model = build_sequential_v2(SENSORS, NUM_CLASSES)
+elif model_type == 'functional':
+    model = build_functional(SENSORS, NUM_CLASSES)
+else:
+    raise Exception('Expected one of [inception, seq_v1, seq_v2, functional] model type literals')
+
 
 model.compile(loss=categorical_crossentropy,
               optimizer='adam',
