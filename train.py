@@ -15,7 +15,7 @@ NUM_CLASSES = 42    # TODO: Get this from the data
 
 # Data loading
 # TODO: Tackle weird float conversion from pandas to numpy array
-dataset = create_dataset('datasets/').as_matrix()
+dataset = create_dataset('datasets/old_datasets').as_matrix()
 x, y = np.hsplit(dataset, [-1])
 
 # Data pre-processing
@@ -38,7 +38,7 @@ model.compile(loss=categorical_crossentropy,
 
 model.summary()
 
-callbacks = [ModelCheckpoint('saved_models/model.hdf5',
+callbacks = [ModelCheckpoint('saved_models/model_test.hdf5',
                              monitor='val_loss',
                              verbose=0,
                              save_best_only=True,

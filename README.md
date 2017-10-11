@@ -13,11 +13,12 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [x] rounding script for datasets
 - [x] name columns appropriately
 - [x] implement exploration/visualization scripts
+- [x] batch evaluation script
+- [ ] use argparse to get inputs in all scripts
+- [ ] hyper-parameter search script
 - [ ] insert new dataset
 - [ ] decide stopping strategy (try early stopping)
-- [ ] train-val-test
-- [ ] hyper-parameter search script
-- [ ] batch evaluation script
+- [ ] train, train-val, val, test
 - [ ] consider separating the knuckle inputs with the finger inputs
 - [ ] upload a graph of the model
 - [ ] integrate in Virtual Sign
