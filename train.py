@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import numpy as np
 from keras.callbacks import ModelCheckpoint, TensorBoard
@@ -80,4 +81,7 @@ hist = model.fit(x_train,
 
 min_val_loss_epoch = min(range(len(hist.history['val_loss'])), key=hist.history['val_loss'].__getitem__)
 min_val_loss = hist.history['val_loss'][min_val_loss_epoch]
-print('Minimum validation loss of %.4f at epoch %d.' % (min_val_loss, min_val_loss_epoch+1))
+print('Minimum validation loss of {:.4f} at epoch {}.'.format(min_val_loss, min_val_loss_epoch + 1))
+
+os.rename('saved_models/{}.hdf5'.format(model_type),
+          'saved_models/{}-{:.4f}-{:0>3}.hdf5'.format(model_type, min_val_loss, min_val_loss_epoch + 1))

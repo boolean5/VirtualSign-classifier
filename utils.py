@@ -140,7 +140,6 @@ def build_inception_layer(input_dim, output_dim):
     from keras.layers import Conv1D, MaxPool1D, Flatten, Dropout, Dense, Input, concatenate
     from keras.activations import relu, softmax
 
-    # TODO: Create a for loop for multiple filter implementation
     # TODO: Consider 'same', 'valid' options for padding
 
     DROPOUT_RATE = 0.5
