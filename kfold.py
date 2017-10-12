@@ -40,16 +40,7 @@ kfold = KFold(n_splits=k, shuffle=True, random_state=seed)
 cvscores = []
 for train, test in kfold.split(x, y):
     # Model building
-    if model_type == 'inception':
-        model = build_inception_layer(SENSORS, NUM_CLASSES)
-    elif model_type == 'seq_v1':
-        model = build_sequential_v1(SENSORS, NUM_CLASSES)
-    elif model_type == 'seq_v2':
-        model = build_sequential_v2(SENSORS, NUM_CLASSES)
-    elif model_type == 'functional':
-        model = build_functional(SENSORS, NUM_CLASSES)
-    else:
-        raise Exception('Expected one of [inception, seq_v1, seq_v2, functional] model type literals')
+    model = build_model(model_type, SENSORS, NUM_CLASSES)
     # compile model
     model.compile(loss=categorical_crossentropy, optimizer='adam', metrics=['accuracy'])
     # fit model
@@ -58,7 +49,6 @@ for train, test in kfold.split(x, y):
     scores = model.evaluate(x[test], y[test], verbose=0)
     print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
     cvscores.append(scores[1] * 100)
-
 
 print(model.summary())
 print("%.2f%% (+/- %.2f%%)" % (np.mean(cvscores), np.std(cvscores)))

@@ -58,6 +58,20 @@ def create_dataset(path, deletedups=True, randomize=True, drop_digits=None):
     return dataset
 
 
+def build_model(model_type, input_dim, output_dim):
+    if model_type == 'inception':
+        model = build_inception_layer(input_dim, output_dim)
+    elif model_type == 'seq_v1':
+        model = build_sequential_v1(input_dim, output_dim)
+    elif model_type == 'seq_v2':
+        model = build_sequential_v2(input_dim, output_dim)
+    elif model_type == 'functional':
+        model = build_functional(input_dim, output_dim)
+    else:
+        raise Exception('Expected one of [inception, seq_v1, seq_v2, functional] model type literals')
+
+    return model
+
 def build_sequential_v1(input_dim, output_dim):
     from keras.models import Sequential
     from keras.layers import Conv1D, MaxPool1D, Flatten, Dense

@@ -41,16 +41,7 @@ x_train = np.expand_dims(x_train, axis=2)
 x_val = np.expand_dims(x_val, axis=2)
 
 # Model building
-if model_type == 'inception':
-    model = build_inception_layer(SENSORS, NUM_CLASSES)
-elif model_type == 'seq_v1':
-    model = build_sequential_v1(SENSORS, NUM_CLASSES)
-elif model_type == 'seq_v2':
-    model = build_sequential_v2(SENSORS, NUM_CLASSES)
-elif model_type == 'functional':
-    model = build_functional(SENSORS, NUM_CLASSES)
-else:
-    raise Exception('Expected one of [inception, seq_v1, seq_v2, functional] model type literals')
+model = build_model(model_type, SENSORS, NUM_CLASSES)
 
 model.compile(loss=categorical_crossentropy,
               optimizer='adam',
