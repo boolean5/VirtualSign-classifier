@@ -23,7 +23,6 @@ test_set = create_dataset(test_set_path, randomize=False)
 x_test, y_test = np.hsplit(test_set, [-1])
 y_test = np_utils.to_categorical(y_test, 42)
 x_test = np.expand_dims(x_test, axis=2)
-print(x_test.shape)
 
 # Evaluation
 loss, acc = model.evaluate(x_test, y_test, verbose=1)
