@@ -23,3 +23,5 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [ ] hyper-parameter search script (check hyperas)
 - [ ] upload a graph of the model
 - [ ] integrate in Virtual Sign
+- [ ] Prompt the user to calibrate and then turn off auto-calibration
+

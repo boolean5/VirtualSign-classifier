@@ -7,7 +7,6 @@
 /*---------------------------------------------------------------------*/
 
 #define DOTS_10 "**********"
-//#define DOTS_10 "▮▮▮▮▮▮▮▮▮▮"
 #define SPAC_10 "          "
 
 #include "fglove.h"
@@ -104,7 +103,6 @@ int main(int argc, char** argv) {
 	printf("\nPlease, input the ID of the hand configuration you wish to capture:\n");
 	scanf("%d", &handconfid);
         printf("\nPlease, input gesture %d:\n ", handconfid);
-	//printf("\nPlease, input gesture %d:\n ", i);
         printf("\r[%1.*s", j, DOTS_10);
         printf("%1.*s] %d% \r", repetitions-j, SPAC_10, j*100/repetitions);
 
@@ -140,7 +138,6 @@ int main(int argc, char** argv) {
                         gloveA_scaled[FD_LITTLEFAR]);
 
                         // fprintf(fp, " >> %d\n", fdGetGesture(pGloveA));
-                        //fprintf(fp, " %d\n", i);
 			fprintf(fpscaled, " %d\n", handconfid);
 
 			// Get raw data
@@ -163,20 +160,13 @@ int main(int argc, char** argv) {
                         gloveA_raw[FD_LITTLEFAR]);
 
                         // fprintf(fp, " >> %d\n", fdGetGesture(pGloveA));
-                        //fprintf(fp, " %d\n", i);
                         fprintf(fpraw, " %d\n", handconfid);
 
                         if (j==repetitions) {
                                 j = 0;
-                                // update the progress bar
-                               // i++;
-                                //if (i == 42) {
-                                 //       break;
-                               // }
 				printf("\nPlease, input the ID of the hand configuration you wish to capture:\n");
 		        	scanf("%d", &handconfid);
 			        printf("\nPlease, input gesture %d:\n ", handconfid);
-                                //printf("\nPlease, input gesture %d:\n ", i);
                                 printf("\r[%1.*s", j, DOTS_10);
                                 printf("%1.*s] %d% \r", repetitions-j, SPAC_10, j*100/repetitions);
                         }
