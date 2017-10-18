@@ -8,8 +8,8 @@ from utils import create_dataset
 
 # Parsing from terminal
 parser = argparse.ArgumentParser(description='Evaluate a trained model')
-parser.add_argument('test_set_path', help='Path of test set folder')
 parser.add_argument('model_path', help='Path of the model to be evaluated')
+parser.add_argument('test_set_path', help='Path of test set folder')
 args = parser.parse_args()
 
 test_set_path = args.test_set_path
