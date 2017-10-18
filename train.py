@@ -27,7 +27,7 @@ NUM_CLASSES = 42    # TODO: Get this from the data
 
 # Data loading
 # TODO: Tackle weird float conversion from pandas to numpy array
-dataset = create_dataset(dataset_path).as_matrix()
+dataset = create_dataset(dataset_path, deletedups=False).as_matrix()
 
 # Data pre-processing
 x, y = np.hsplit(dataset, [-1])

@@ -24,24 +24,26 @@ def create_dataset(path, deletedups=True, randomize=True, drop_digits=None):
     import pandas as pd
     import os
 
-    # sensors = ['col'+str(i) for i in range(14)] + ['id']
     sensors = ['thu-near', 'thu-far', 'thu-ind', 'ind-near', 'ind-far', 'ind-mid', 'mid-near', 'mid-far',
                'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far', 'id']
     frames = []
+    if os.path.isdir(path):
+        for root, dirs, files in os.walk(path):
+            for filename in files:
+                with open(os.path.join(root, filename)) as infile:
+                    df = pd.read_csv(infile, delim_whitespace=True, names=sensors, usecols=sensors, header=None)
 
-    for root, dirs, files in os.walk(path):
-        for filename in files:
-            with open(os.path.join(root, filename)) as infile:
-                df = pd.read_csv(infile, delim_whitespace=True, names=sensors, usecols=sensors, header=None)
-
-            # Check for misplaced class-label column, properly swap columns/shift contents if so
-            if df.iloc[:, 0].dtype == 'int64':
-
-                # Reorder columns, then change back to original names
-                cols = df.columns.tolist()
-                cols = cols[1:] + cols[:1]
-                df = df[cols]
-                df.columns = sensors
+                # Check for misplaced class-label column, properly swap columns/shift contents if so
+                if df.iloc[:, 0].dtype == 'int64':
+                    # Reorder columns, then change back to original names
+                    cols = df.columns.tolist()
+                    cols = cols[1:] + cols[:1]
+                    df = df[cols]
+                    df.columns = sensors
+                frames.append(df)
+    else:
+        with open(path) as infile:
+            df = pd.read_csv(infile, delim_whitespace=True, names=sensors, usecols=sensors, header=None)
             frames.append(df)
 
     dataset = pd.concat(frames, ignore_index=True)

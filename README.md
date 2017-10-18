@@ -16,6 +16,7 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [x] batch evaluation script
 - [x] use argparse to get inputs in all scripts
 - [x] modeling name scheme (model name, val loss, epoch)
+- [x] change script to work with directories or files
 - [ ] consider separating the knuckle inputs with the finger inputs
 - [ ] insert new dataset
 - [ ] train, train-val, val, test
