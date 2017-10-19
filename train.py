@@ -8,22 +8,25 @@ from keras.utils import np_utils
 
 from utils import *
 
+# Hyper-parameters
+SENSORS = 14
+BATCH_SIZE = 50
+EPOCHS = 200
+NUM_CLASSES = 42  # TODO: Get this from the data
+
 # Parsing from terminal
 parser = argparse.ArgumentParser(description='Train a hand configuration classifier')
 parser.add_argument('dataset_path', help='Path of datasets folder')
 parser.add_argument('-m', '--model', help='Choose model to train on from [inception, seq_v1, seq_v2, functional]',
                     type=str, default='inception')
+parser.add_argument('-e', '--epochs', help='Number of training epochs', type=int, default=EPOCHS)
+parser.add_argument('-b', '--batch', help='Size of training batch', type=int, default=BATCH_SIZE)
 args = parser.parse_args()
 
 dataset_path = args.dataset_path
 model_type = args.model
-
-
-# Hyper-parameters
-SENSORS = 14
-BATCH_SIZE = 50
-EPOCHS = 200
-NUM_CLASSES = 42    # TODO: Get this from the data
+EPOCHS = args.epochs  # Epochs and batch size are assigned twice which is obsolete. This will change depending on
+BATCH_SIZE = args.batch  # how the hyper-parameter search script is called. Leaving as is for now.
 
 # Data loading
 # TODO: Tackle weird float conversion from pandas to numpy array

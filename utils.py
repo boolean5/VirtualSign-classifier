@@ -20,7 +20,16 @@ def duplicates(dataframe):
     return len(num_dups)
 
 
-def create_dataset(path, deletedups=True, randomize=True, drop_digits=None):
+def first_col_to_last(dataframe, columns):
+    # Swap id column to the last place TODO: Have a standard way of doing this, probably according to Tiago's VS script
+    cols = dataframe.columns.tolist()
+    cols = cols[1:] + cols[:1]
+    df = dataframe[cols]
+    df.columns = columns
+    return df
+
+
+def create_dataset(path, deletedups=True, randomize=True, drop_digits=None, raw=False):
     import pandas as pd
     import os
 
@@ -34,19 +43,23 @@ def create_dataset(path, deletedups=True, randomize=True, drop_digits=None):
                     df = pd.read_csv(infile, delim_whitespace=True, names=sensors, usecols=sensors, header=None)
 
                 # Check for misplaced class-label column, properly swap columns/shift contents if so
-                if df.iloc[:, 0].dtype == 'int64':
+                if df.iloc[:, 0].dtype == 'int64' and not raw:
                     # Reorder columns, then change back to original names
-                    cols = df.columns.tolist()
-                    cols = cols[1:] + cols[:1]
-                    df = df[cols]
-                    df.columns = sensors
+                    df = first_col_to_last(df, sensors)
                 frames.append(df)
     else:
         with open(path) as infile:
             df = pd.read_csv(infile, delim_whitespace=True, names=sensors, usecols=sensors, header=None)
+            # Check for misplaced class-label column, properly swap columns/shift contents if so
+            if df.iloc[:, 0].dtype == 'int64' and not raw:
+                # Reorder columns, then change back to original names
+                df = first_col_to_last(df, sensors)
             frames.append(df)
 
     dataset = pd.concat(frames, ignore_index=True)
+
+    if raw:
+        dataset.iloc[:, :-1] = dataset.iloc[:, :-1].divide(4096)  # 4096 is the glove max output value reported by 5DT
 
     if deletedups:
         dataset = dataset.drop_duplicates().reset_index(drop=True)
@@ -73,6 +86,7 @@ def build_model(model_type, input_dim, output_dim):
         raise Exception('Expected one of [inception, seq_v1, seq_v2, functional] model type literals')
 
     return model
+
 
 def build_sequential_v1(input_dim, output_dim):
     from keras.models import Sequential
