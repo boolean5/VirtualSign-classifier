@@ -13,7 +13,7 @@ parser.add_argument('dataset_path', help='Path of datasets folder or file')
 args = parser.parse_args()
 dataset_path = args.dataset_path
 
-dataset = create_dataset(dataset_path, raw=True, deletedups=False)
+dataset = create_dataset(dataset_path, raw=False, deletedups=False)
 
 grouped = dataset.groupby(['id'], as_index=True)
 ranges = grouped.apply(lambda g: g.max() - g.min())

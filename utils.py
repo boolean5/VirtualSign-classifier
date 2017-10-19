@@ -33,33 +33,24 @@ def create_dataset(path, deletedups=True, randomize=True, drop_digits=None, raw=
     import pandas as pd
     import os
 
-    sensors = ['thu-near', 'thu-far', 'thu-ind', 'ind-near', 'ind-far', 'ind-mid', 'mid-near', 'mid-far',
-               'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far', 'id']
+    sensors = ['id', 'thu-near', 'thu-far', 'thu-ind', 'ind-near', 'ind-far', 'ind-mid', 'mid-near', 'mid-far',
+               'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far']
     frames = []
     if os.path.isdir(path):
         for root, dirs, files in os.walk(path):
             for filename in files:
                 with open(os.path.join(root, filename)) as infile:
                     df = pd.read_csv(infile, delim_whitespace=True, names=sensors, usecols=sensors, header=None)
-
-                # Check for misplaced class-label column, properly swap columns/shift contents if so
-                if df.iloc[:, 0].dtype == 'int64' and not raw:
-                    # Reorder columns, then change back to original names
-                    df = first_col_to_last(df, sensors)
                 frames.append(df)
     else:
         with open(path) as infile:
             df = pd.read_csv(infile, delim_whitespace=True, names=sensors, usecols=sensors, header=None)
-            # Check for misplaced class-label column, properly swap columns/shift contents if so
-            if df.iloc[:, 0].dtype == 'int64' and not raw:
-                # Reorder columns, then change back to original names
-                df = first_col_to_last(df, sensors)
             frames.append(df)
 
     dataset = pd.concat(frames, ignore_index=True)
 
     if raw:
-        dataset.iloc[:, :-1] = dataset.iloc[:, :-1].divide(4096)  # 4096 is the glove max output value reported by 5DT
+        dataset.iloc[:, 1:] = dataset.iloc[:, 1:].divide(4096)  # 4096 is the glove max output value reported by 5DT
 
     if deletedups:
         dataset = dataset.drop_duplicates().reset_index(drop=True)
