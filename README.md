@@ -17,6 +17,7 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [x] use argparse to get inputs in all scripts
 - [x] modeling name scheme (model name, val loss, epoch)
 - [x] change script to work with directories or files
+- [x] Prompt the user to calibrate and then turn off auto-calibration
 - [ ] consider separating the knuckle inputs with the finger inputs
 - [ ] insert new dataset
 - [ ] train, train-val, val, test
@@ -24,5 +25,4 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [ ] hyper-parameter search script (check hyperas)
 - [ ] upload a graph of the model
 - [ ] integrate in Virtual Sign
-- [ ] Prompt the user to calibrate and then turn off auto-calibration
 
