@@ -20,7 +20,7 @@ model = load_model(model_path)
 test_set = create_dataset(test_set_path, randomize=False)
 
 # Data manipulation
-x_test, y_test = np.hsplit(test_set, [-1])
+y_test, x_test = np.hsplit(test_set, [1])
 y_test = np_utils.to_categorical(y_test, 42)
 x_test = np.expand_dims(x_test, axis=2)
 

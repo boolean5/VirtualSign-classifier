@@ -33,7 +33,7 @@ BATCH_SIZE = args.batch  # how the hyper-parameter search script is called. Leav
 dataset = create_dataset(dataset_path, deletedups=False).as_matrix()
 
 # Data pre-processing
-x, y = np.hsplit(dataset, [-1])
+y, x = np.hsplit(dataset, [1])
 splitPoint = int(np.ceil(len(y) * 0.75))
 x_train, x_val = np.vsplit(x, [splitPoint])
 y_train, y_val = np.vsplit(y, [splitPoint])
