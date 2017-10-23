@@ -34,9 +34,13 @@ dataset = create_dataset(dataset_path, deletedups=False).as_matrix()
 
 # Data pre-processing
 y, x = np.hsplit(dataset, [1])
-splitPoint = int(np.ceil(len(y) * 0.75))
+splitPoint = int(np.ceil(len(y) * 0.9))
 x_train, x_val = np.vsplit(x, [splitPoint])
 y_train, y_val = np.vsplit(y, [splitPoint])
+
+# I add these lines for our own datasets because they range from 1 to 42
+# y_train = y_train - 1
+# y_val = y_val - 1
 
 y_train = np_utils.to_categorical(y_train, NUM_CLASSES)
 y_val = np_utils.to_categorical(y_val, NUM_CLASSES)

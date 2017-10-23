@@ -17,10 +17,13 @@ model_path = args.model_path
 
 # Loading
 model = load_model(model_path)
-test_set = create_dataset(test_set_path, randomize=False)
+test_set = create_dataset(test_set_path, randomize=False, deletedups=False)
 
 # Data manipulation
 y_test, x_test = np.hsplit(test_set, [1])
+
+# This line is added for classes that range from 1 to 42
+# y_test = y_test - 1
 y_test = np_utils.to_categorical(y_test, 42)
 x_test = np.expand_dims(x_test, axis=2)
 

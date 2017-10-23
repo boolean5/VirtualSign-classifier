@@ -50,7 +50,7 @@ def create_dataset(path, deletedups=True, randomize=True, drop_digits=None, raw=
     dataset = pd.concat(frames, ignore_index=True)
 
     if raw:
-        dataset.iloc[:, 1:] = dataset.iloc[:, 1:].divide(4096)  # 4096 is the glove max output value reported by 5DT
+        dataset.iloc[:, :] = dataset.iloc[:, 1:].divide(4096)  # 4096 is the glove max output value reported by 5DT
 
     if deletedups:
         dataset = dataset.drop_duplicates().reset_index(drop=True)
