@@ -19,6 +19,9 @@ Datasets consist of 15 columns. The first 14 correspond to the data gloves senso
 - [x] change script to work with directories or files
 - [x] Prompt the user to calibrate and then turn off auto-calibration
 - [ ] Batch normalization
+- [ ] Check unsupervised pre-training
+- [ ] Check decision trees and gradient boosting
+- [ ] Try SVMs
 - [ ] consider separating the knuckle inputs with the finger inputs
 - [ ] insert new dataset
 - [ ] train, train-val, val, test
