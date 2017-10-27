@@ -10,7 +10,7 @@ from utils import *
 
 # Hyper-parameters
 SENSORS = 14
-BATCH_SIZE = 50
+BATCH_SIZE = 64
 EPOCHS = 200
 NUM_CLASSES = 42  # TODO: Get this from the data
 
@@ -30,17 +30,20 @@ BATCH_SIZE = args.batch  # how the hyper-parameter search script is called. Leav
 
 # Data loading
 # TODO: Tackle weird float conversion from pandas to numpy array
-dataset = create_dataset(dataset_path, deletedups=False).as_matrix()
+dataset = create_dataset(dataset_path, deletedups=False, drop_digits=6).as_matrix()
 
 # Data pre-processing
-y, x = np.hsplit(dataset, [1])
-splitPoint = int(np.ceil(len(y) * 0.9))
-x_train, x_val = np.vsplit(x, [splitPoint])
-y_train, y_val = np.vsplit(y, [splitPoint])
+y_train, x_train = np.hsplit(dataset, [1])
+# splitPoint = int(np.ceil(len(y) * 0.9))
+# x_train, x_val = np.vsplit(x, [splitPoint])
+# y_train, y_val = np.vsplit(y, [splitPoint])
+testset = create_dataset('datasets/testing/', deletedups=False, drop_digits=6)
+y_val, x_val = np.hsplit(testset, [1])
+
 
 # I add these lines for our own datasets because they range from 1 to 42
-# y_train = y_train - 1
-# y_val = y_val - 1
+y_train = y_train - 1
+y_val = y_val - 1
 
 y_train = np_utils.to_categorical(y_train, NUM_CLASSES)
 y_val = np_utils.to_categorical(y_val, NUM_CLASSES)
