@@ -21,6 +21,7 @@ Datasets consist of 15 columns. The first one determines the hand configuration.
 - [x] Insert new dataset
 - [x] Batch normalization
 - [ ] Add evaluation in the end of the training script
+- [ ] Test L2 regularization
 - [ ] Check unsupervised pre-training
 - [ ] Check decision trees and gradient boosting
 - [ ] Try SVMs
