@@ -8,6 +8,9 @@ from keras.utils import np_utils
 
 from utils import *
 
+# Turn off TensorFlow warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 # Hyper-parameters
 SENSORS = 14
 BATCH_SIZE = 64
@@ -29,8 +32,7 @@ EPOCHS = args.epochs  # Epochs and batch size are assigned twice which is obsole
 BATCH_SIZE = args.batch  # how the hyper-parameter search script is called. Leaving as is for now.
 
 # Data loading
-# TODO: Tackle weird float conversion from pandas to numpy array
-dataset = create_dataset(dataset_path, deletedups=False, drop_digits=6).as_matrix()
+dataset = create_dataset(dataset_path, deletedups=False, drop_digits=6)
 
 # Data pre-processing
 y_train, x_train = np.hsplit(dataset, [1])
@@ -40,8 +42,7 @@ y_train, x_train = np.hsplit(dataset, [1])
 testset = create_dataset('datasets/testing/', deletedups=False, drop_digits=6)
 y_val, x_val = np.hsplit(testset, [1])
 
-
-# I add these lines for our own datasets because they range from 1 to 42
+# I add these lines for our own datasets because they range from 1 to 42. This is not permanent
 y_train = y_train - 1
 y_val = y_val - 1
 
@@ -56,7 +57,7 @@ model = build_model(model_type, SENSORS, NUM_CLASSES)
 model.compile(loss=categorical_crossentropy,
               optimizer='adam',
               metrics=['accuracy'])
-model.summary()
+# model.summary()
 
 callbacks = [ModelCheckpoint('saved_models/' + model_type + '.hdf5',
                              monitor='val_loss',
@@ -82,7 +83,10 @@ hist = model.fit(x_train,
 
 min_val_loss_epoch = min(range(len(hist.history['val_loss'])), key=hist.history['val_loss'].__getitem__)
 min_val_loss = hist.history['val_loss'][min_val_loss_epoch]
-print('Minimum validation loss of {:.4f} at epoch {}.'.format(min_val_loss, min_val_loss_epoch + 1))
+min_acc = hist.history['val_acc'][min_val_loss_epoch]
+print('Minimum validation loss of {:.4f} at epoch {} with accuracy of {:.2f}%.'.format(min_val_loss,
+                                                                                       min_val_loss_epoch + 1,
+                                                                                       min_acc * 100))
 
 os.rename('saved_models/{}.hdf5'.format(model_type),
           'saved_models/{}-{:.4f}-{:0>3}.hdf5'.format(model_type, min_val_loss, min_val_loss_epoch + 1))
