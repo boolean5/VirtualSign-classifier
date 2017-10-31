@@ -1,5 +1,4 @@
 import argparse
-
 import numpy as np
 from keras.models import load_model
 
@@ -21,4 +20,5 @@ output = output.flatten()
 probability = max(output)
 gesture = np.where(output == probability)[0]
 
-print(int(gesture), probability)
+# print(int(gesture), probability)
+print(int(gesture))
