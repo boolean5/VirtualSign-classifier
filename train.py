@@ -2,7 +2,7 @@ import argparse
 import os
 
 import numpy as np
-from keras.callbacks import ModelCheckpoint, TensorBoard
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.losses import categorical_crossentropy
 from keras.utils import np_utils
 
@@ -33,7 +33,7 @@ BATCH_SIZE = args.batch  # how the hyper-parameter search script is called. Leav
 
 # Data loading & pre-processing
 training_set = create_dataset(dataset_path)
-dev_test_set = create_dataset('datasets/testing/')
+dev_test_set = create_dataset('datasets/testing/')  # This needs to be class balanced
 y_train, x_train = np.hsplit(training_set, [1])
 y_dev_test, x_dev_test = np.hsplit(dev_test_set, [1])
 
@@ -66,12 +66,13 @@ callbacks = [ModelCheckpoint('saved_models/' + model_type + '.hdf5',
                              save_weights_only=False,
                              mode='min',
                              period=1),
-             TensorBoard(log_dir='./logs',
-                         histogram_freq=1,
-                         batch_size=BATCH_SIZE,
-                         write_graph=True,
-                         write_grads=True,
-                         write_images=True)]
+             # TensorBoard(log_dir='./logs',
+             #             histogram_freq=1,
+             #             batch_size=BATCH_SIZE,
+             #             write_graph=True,
+             #             write_grads=True,
+             #             write_images=True),
+             EarlyStopping(patience=20)]
 # Training
 hist = model.fit(x_train,
                  y_train,

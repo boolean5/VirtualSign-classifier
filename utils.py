@@ -55,6 +55,7 @@ def create_dataset(path, deletedups=False, randomize=True, drop_digits=6, raw=Fa
     if deletedups:
         dataset = dataset.drop_duplicates().reset_index(drop=True)
 
+    # TODO: This randomization has to be stratified
     if randomize:
         dataset = dataset.sample(frac=1).reset_index(drop=True)
 
@@ -133,7 +134,7 @@ def build_sequential_v2(input_dim, output_dim):
 
 def build_functional(input_dim, output_dim):
     from keras.models import Model
-    from keras.regularizers import l2
+    from keras.regularizers import l1_l2
     from keras.layers import Conv1D, Flatten, Dropout, Dense, Input, concatenate, BatchNormalization
     from keras.activations import softmax, selu
 
@@ -146,18 +147,18 @@ def build_functional(input_dim, output_dim):
 
     bn_input = BatchNormalization()(inputs)
 
-    conv_1 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(bn_input)
+    conv_1 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(bn_input)
     conv_1 = Dropout(DROPOUT_RATE)(conv_1)
 
-    conv_2 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(bn_input)
-    conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(conv_2)
-    conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(conv_2)
+    conv_2 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(bn_input)
+    conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(conv_2)
+    conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(conv_2)
     conv_2 = Dropout(DROPOUT_RATE)(conv_2)
 
     output = concatenate([conv_1, conv_2], axis=1)
 
     flatten = Flatten()(output)
-    dense = Dense(feature_map_size, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(flatten)
+    dense = Dense(feature_map_size, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(flatten)
     dense = Dropout(DROPOUT_RATE)(dense)
     output = Dense(output_dim, activation=softmax)(dense)
 
@@ -167,7 +168,7 @@ def build_functional(input_dim, output_dim):
 
 def build_inception_layer(input_dim, output_dim):
     from keras.models import Model
-    from keras.regularizers import l2
+    from keras.regularizers import l1_l2
     from keras.layers import Conv1D, MaxPool1D, Flatten, Dropout, Dense, Input, concatenate, BatchNormalization
     from keras.activations import softmax, elu
 
@@ -183,26 +184,26 @@ def build_inception_layer(input_dim, output_dim):
 
     bn_input = BatchNormalization()(inputs)
 
-    conv_1 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(bn_input)
+    conv_1 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(bn_input)
     conv_1 = Dropout(DROPOUT_RATE)(conv_1)
 
-    conv_2 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(bn_input)
-    conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(conv_2)
+    conv_2 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(bn_input)
+    conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(conv_2)
     conv_2 = Dropout(DROPOUT_RATE)(conv_2)
 
-    conv_3 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(bn_input)
-    conv_3 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(conv_3)
-    conv_3 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(conv_3)
+    conv_3 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(bn_input)
+    conv_3 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(conv_3)
+    conv_3 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(conv_3)
     conv_3 = Dropout(DROPOUT_RATE)(conv_3)
 
     pool_1 = MaxPool1D(pool_size, strides=1, padding='same')(bn_input)
-    conv_4 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(pool_1)
+    conv_4 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(pool_1)
     conv_4 = Dropout(DROPOUT_RATE)(conv_4)
 
     output = concatenate([conv_1, conv_2, conv_3, conv_4], axis=1)
 
     flatten = Flatten()(output)
-    dense = Dense(feature_map_size, activation=ACTIVATION_FUNCTION, kernel_regularizer=l2(0.01))(flatten)
+    dense = Dense(feature_map_size, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(flatten)
     dense = Dropout(DROPOUT_RATE)(dense)
     output = Dense(output_dim, activation=softmax)(dense)
 
