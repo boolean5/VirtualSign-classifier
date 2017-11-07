@@ -27,8 +27,7 @@ Datasets consist of 15 columns. The first one determines the hand configuration.
 - [x] Try L1 regulization (though the sparsity of the features is not certain)
 - [x] decide stopping strategy (try early stopping)
 - [ ] Check unsupervised pre-training
-- [ ] explore how linearly separable is our data
-- [ ] Try SVMs
+- [ ] explore how linearly separable is our data and try SVMs
 - [ ] consider separating the knuckle inputs with the finger inputs
 - [ ] hyper-parameter search script (check hyperas)
 - [ ] upload graph of the models
