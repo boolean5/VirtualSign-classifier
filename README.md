@@ -20,14 +20,16 @@ Datasets consist of 15 columns. The first one determines the hand configuration.
 - [x] Prompt the user to calibrate and then turn off auto-calibration
 - [x] Insert new dataset
 - [x] Batch normalization
-- [ ] Add evaluation in the end of the training script
+- [x] Test L2 regularization
+- [x] Check decision trees and gradient boosting
+- [x] Add evaluation in the end of the training script
+- [x] train, train-val, val, test
+- [x] Try L1 regulization (though the sparsity of the features is not certain)
+- [x] decide stopping strategy (try early stopping)
 - [ ] Check unsupervised pre-training
-- [ ] Check decision trees and gradient boosting
-- [ ] Try SVMs
+- [ ] explore how linearly separable is our data and try SVMs
 - [ ] consider separating the knuckle inputs with the finger inputs
-- [ ] train, train-val, val, test
-- [ ] decide stopping strategy (try early stopping)
 - [ ] hyper-parameter search script (check hyperas)
-- [ ] upload a graph of the model
+- [ ] upload graph of the models
 - [ ] integrate in Virtual Sign
 

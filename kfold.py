@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import numpy as np
 from keras.losses import categorical_crossentropy
@@ -8,13 +9,16 @@ from sklearn.model_selection import KFold
 from utils import *
 
 SENSORS = 14
-BATCH_SIZE = 50
-EPOCHS = 150
+BATCH_SIZE = 64
+EPOCHS = 100
 NUM_CLASSES = 42    # TODO: Get this from the data
 
-# fix random seed for reproducibility
+# Fix random seed for reproducibility
 seed = 7
 np.random.seed(seed)
+
+# Turn off TensorFlow warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Parsing from terminal
 parser = argparse.ArgumentParser(description='K-Fold validation script')
@@ -30,9 +34,10 @@ k = args.kfolds
 
 # Data loading
 # TODO: Tackle weird float conversion from pandas to numpy array
-dataset = create_dataset(dataset_path).as_matrix()
-x, y = np.hsplit(dataset, [-1])
+dataset = create_dataset(dataset_path, randomize=True)
+y, x = np.hsplit(dataset, [1])
 x = np.expand_dims(x, axis=2)
+y = y - 1
 y = np_utils.to_categorical(y, NUM_CLASSES)
 
 # K-fold cross validation
@@ -50,5 +55,4 @@ for train, test in kfold.split(x, y):
     print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
     cvscores.append(scores[1] * 100)
 
-print(model.summary())
 print("%.2f%% (+/- %.2f%%)" % (np.mean(cvscores), np.std(cvscores)))

@@ -2,11 +2,14 @@ import argparse
 import os
 
 import numpy as np
-from keras.callbacks import ModelCheckpoint, TensorBoard
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.losses import categorical_crossentropy
 from keras.utils import np_utils
 
 from utils import *
+
+# Turn off TensorFlow warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Hyper-parameters
 SENSORS = 14
@@ -28,35 +31,33 @@ model_type = args.model
 EPOCHS = args.epochs  # Epochs and batch size are assigned twice which is obsolete. This will change depending on
 BATCH_SIZE = args.batch  # how the hyper-parameter search script is called. Leaving as is for now.
 
-# Data loading
-# TODO: Tackle weird float conversion from pandas to numpy array
-dataset = create_dataset(dataset_path, deletedups=False, drop_digits=6).as_matrix()
+# Data loading & pre-processing
+training_set = create_dataset(dataset_path)
+dev_test_set = create_dataset('datasets/testing/')  # This needs to be class balanced
+y_train, x_train = np.hsplit(training_set, [1])
+y_dev_test, x_dev_test = np.hsplit(dev_test_set, [1])
 
-# Data pre-processing
-y_train, x_train = np.hsplit(dataset, [1])
-# splitPoint = int(np.ceil(len(y) * 0.9))
-# x_train, x_val = np.vsplit(x, [splitPoint])
-# y_train, y_val = np.vsplit(y, [splitPoint])
-testset = create_dataset('datasets/testing/', deletedups=False, drop_digits=6)
-y_val, x_val = np.hsplit(testset, [1])
+splitPoint = int(np.ceil(len(y_dev_test) * 0.5))
+x_dev, x_test = np.vsplit(x_dev_test, [splitPoint])
+y_dev, y_test = np.vsplit(y_dev_test, [splitPoint])
 
 
-# I add these lines for our own datasets because they range from 1 to 42
+# I add these lines for our own datasets because they range from 1 to 42. This is not permanent
 y_train = y_train - 1
-y_val = y_val - 1
+y_dev = y_dev - 1
+y_test = y_test - 1
 
-y_train = np_utils.to_categorical(y_train, NUM_CLASSES)
-y_val = np_utils.to_categorical(y_val, NUM_CLASSES)
 x_train = np.expand_dims(x_train, axis=2)
-x_val = np.expand_dims(x_val, axis=2)
+x_dev = np.expand_dims(x_dev, axis=2)
+x_test = np.expand_dims(x_test, axis=2)
+y_train = np_utils.to_categorical(y_train, NUM_CLASSES)
+y_dev = np_utils.to_categorical(y_dev, NUM_CLASSES)
+y_test = np_utils.to_categorical(y_test, NUM_CLASSES)
 
 # Model building
 model = build_model(model_type, SENSORS, NUM_CLASSES)
-
-model.compile(loss=categorical_crossentropy,
-              optimizer='adam',
-              metrics=['accuracy'])
-model.summary()
+model.compile(loss=categorical_crossentropy, optimizer='adam', metrics=['accuracy'])
+# model.summary()
 
 callbacks = [ModelCheckpoint('saved_models/' + model_type + '.hdf5',
                              monitor='val_loss',
@@ -65,24 +66,32 @@ callbacks = [ModelCheckpoint('saved_models/' + model_type + '.hdf5',
                              save_weights_only=False,
                              mode='min',
                              period=1),
-             TensorBoard(log_dir='./logs',
-                         histogram_freq=1,
-                         batch_size=BATCH_SIZE,
-                         write_graph=True,
-                         write_grads=True,
-                         write_images=True)]
-
+             # TensorBoard(log_dir='./logs',
+             #             histogram_freq=1,
+             #             batch_size=BATCH_SIZE,
+             #             write_graph=True,
+             #             write_grads=True,
+             #             write_images=True),
+             EarlyStopping(patience=20)]
+# Training
 hist = model.fit(x_train,
                  y_train,
                  batch_size=BATCH_SIZE,
-                 epochs=EPOCHS, verbose=1,
-                 validation_data=(x_val, y_val),
+                 epochs=EPOCHS, verbose=0,
+                 validation_data=(x_dev, y_dev),
                  shuffle=True,
                  callbacks=callbacks)
 
 min_val_loss_epoch = min(range(len(hist.history['val_loss'])), key=hist.history['val_loss'].__getitem__)
 min_val_loss = hist.history['val_loss'][min_val_loss_epoch]
-print('Minimum validation loss of {:.4f} at epoch {}.'.format(min_val_loss, min_val_loss_epoch + 1))
+min_acc = hist.history['val_acc'][min_val_loss_epoch]
+print('Minimum validation loss of {:.4f} at epoch {} with accuracy of {:.2f}%.'.format(min_val_loss,
+                                                                                       min_val_loss_epoch + 1,
+                                                                                       min_acc * 100))
 
 os.rename('saved_models/{}.hdf5'.format(model_type),
           'saved_models/{}-{:.4f}-{:0>3}.hdf5'.format(model_type, min_val_loss, min_val_loss_epoch + 1))
+
+# Evaluation
+loss, acc = model.evaluate(x_test, y_test, verbose=0)
+print('Results on test set: {:.4f} loss, {:.2f} accuracy.'.format(loss, acc * 100))
