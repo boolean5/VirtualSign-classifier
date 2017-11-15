@@ -32,8 +32,9 @@ EPOCHS = args.epochs  # Epochs and batch size are assigned twice which is obsole
 BATCH_SIZE = args.batch  # how the hyper-parameter search script is called. Leaving as is for now.
 
 # Data loading & pre-processing
-training_set = create_dataset(dataset_path)
-dev_test_set = create_dataset('datasets/testing/')  # This needs to be class balanced
+training_set = create_dataset(dataset_path, randomize=False)
+dev_test_set = create_dataset('datasets/testing/', randomize=False)  # TODO: Make this randomization stratified
+
 y_train, x_train = np.hsplit(training_set, [1])
 y_dev_test, x_dev_test = np.hsplit(dev_test_set, [1])
 
@@ -41,11 +42,10 @@ splitPoint = int(np.ceil(len(y_dev_test) * 0.5))
 x_dev, x_test = np.vsplit(x_dev_test, [splitPoint])
 y_dev, y_test = np.vsplit(y_dev_test, [splitPoint])
 
-
 # I add these lines for our own datasets because they range from 1 to 42. This is not permanent
 y_train = y_train - 1
-y_dev = y_dev - 1
-y_test = y_test - 1
+# y_dev = y_dev - 1
+# y_test = y_test - 1
 
 x_train = np.expand_dims(x_train, axis=2)
 x_dev = np.expand_dims(x_dev, axis=2)
@@ -56,8 +56,9 @@ y_test = np_utils.to_categorical(y_test, NUM_CLASSES)
 
 # Model building
 model = build_model(model_type, SENSORS, NUM_CLASSES)
-model.compile(loss=categorical_crossentropy, optimizer='adam', metrics=['accuracy'])
-# model.summary()
+
+model.compile(loss=categorical_crossentropy, optimizer='adam', metrics=['categorical_accuracy'])
+model.summary()
 
 callbacks = [ModelCheckpoint('saved_models/' + model_type + '.hdf5',
                              monitor='val_loss',
@@ -72,7 +73,8 @@ callbacks = [ModelCheckpoint('saved_models/' + model_type + '.hdf5',
              #             write_graph=True,
              #             write_grads=True,
              #             write_images=True),
-             EarlyStopping(patience=20)]
+             EarlyStopping(patience=10)]
+
 # Training
 hist = model.fit(x_train,
                  y_train,
@@ -84,7 +86,7 @@ hist = model.fit(x_train,
 
 min_val_loss_epoch = min(range(len(hist.history['val_loss'])), key=hist.history['val_loss'].__getitem__)
 min_val_loss = hist.history['val_loss'][min_val_loss_epoch]
-min_acc = hist.history['val_acc'][min_val_loss_epoch]
+min_acc = hist.history['categorical_accuracy'][min_val_loss_epoch]
 print('Minimum validation loss of {:.4f} at epoch {} with accuracy of {:.2f}%.'.format(min_val_loss,
                                                                                        min_val_loss_epoch + 1,
                                                                                        min_acc * 100))

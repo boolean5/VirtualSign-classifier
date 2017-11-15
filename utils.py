@@ -21,7 +21,6 @@ def duplicates(dataframe):
 
 
 def first_col_to_last(dataframe, columns):
-    # Swap id column to the last place TODO: Have a standard way of doing this, probably according to Tiago's VS script
     cols = dataframe.columns.tolist()
     cols = cols[1:] + cols[:1]
     df = dataframe[cols]
@@ -29,9 +28,10 @@ def first_col_to_last(dataframe, columns):
     return df
 
 
-def create_dataset(path, deletedups=False, randomize=True, drop_digits=6, raw=False):
+def create_dataset(path, deletedups=False, randomize=True, drop_digits=6, include_raw=False, group_fingers=False):
     import pandas as pd
     import os
+    import re
 
     sensors = ['id', 'thu-near', 'thu-far', 'thu-ind', 'ind-near', 'ind-far', 'ind-mid', 'mid-near', 'mid-far',
                'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far']
@@ -49,8 +49,18 @@ def create_dataset(path, deletedups=False, randomize=True, drop_digits=6, raw=Fa
 
     dataset = pd.concat(frames, ignore_index=True)
 
-    if raw:
-        dataset.iloc[:, 1:] = dataset.iloc[:, 1:].divide(4096)  # 4096 is the glove max output value reported by 5DT
+    if include_raw:
+        raw_path = re.sub('scaled', 'raw', path)
+        raw_data = create_dataset(path=raw_path, deletedups=deletedups, randomize=randomize,
+                                  group_fingers=group_fingers)
+
+        dataset = dataset.merge(raw_data, how='inner', left_index=True, right_index=True)
+        dataset = dataset[
+            ['id', 'thu-near_x', 'thu-near_y', 'thu-far_x', 'thu-far_y', 'thu-ind_x', 'thu-ind_y', 'ind-near_x',
+             'ind-near_y',
+             'ind-far_x', 'ind-far_y', 'ind-mid_x', 'ind-mid_y', 'mid-near_x', 'mid-near_y', 'mid-far_x', 'mid-far_y',
+             'mid-rin_x', 'mid-rin_y', 'rin-near_x', 'rin-near_y', 'rin-far_x', 'rin-far_y', 'rin-lil_x', 'rin-lil_y',
+             'lil-near_x', 'lil-near_y', 'lil-far_x', 'lil-far_y']]
 
     if deletedups:
         dataset = dataset.drop_duplicates().reset_index(drop=True)
@@ -61,6 +71,10 @@ def create_dataset(path, deletedups=False, randomize=True, drop_digits=6, raw=Fa
 
     if drop_digits:
         dataset = dataset.round(drop_digits)
+
+    if group_fingers:
+        dataset = dataset[['id', 'thu-ind', 'ind-mid', 'mid-rin', 'rin-lil', 'thu-near', 'thu-far', 'ind-near',
+                           'ind-far', 'mid-near', 'mid-far', 'rin-near', 'rin-far', 'lil-near', 'lil-far']]
 
     return dataset
 
@@ -138,7 +152,7 @@ def build_functional(input_dim, output_dim):
     from keras.layers import Conv1D, Flatten, Dropout, Dense, Input, concatenate, BatchNormalization
     from keras.activations import softmax, selu
 
-    DROPOUT_RATE = 0.5
+    DROPOUT_RATE = 0.3
     ACTIVATION_FUNCTION = selu
     output_size = 16
     feature_map_size = 100
@@ -151,7 +165,9 @@ def build_functional(input_dim, output_dim):
     conv_1 = Dropout(DROPOUT_RATE)(conv_1)
 
     conv_2 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(bn_input)
+    conv_2 = Dropout(DROPOUT_RATE)(conv_2)
     conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(conv_2)
+    conv_2 = Dropout(DROPOUT_RATE)(conv_2)
     conv_2 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(conv_2)
     conv_2 = Dropout(DROPOUT_RATE)(conv_2)
 
@@ -170,15 +186,15 @@ def build_inception_layer(input_dim, output_dim):
     from keras.models import Model
     from keras.regularizers import l1_l2
     from keras.layers import Conv1D, MaxPool1D, Flatten, Dropout, Dense, Input, concatenate, BatchNormalization
-    from keras.activations import softmax, elu
+    from keras.activations import softmax, selu
 
     # TODO: Consider 'same', 'valid' options for padding
 
-    DROPOUT_RATE = 0.3
-    ACTIVATION_FUNCTION = elu
+    DROPOUT_RATE = 0.4
+    ACTIVATION_FUNCTION = selu
     output_size = 16
     pool_size = 3
-    feature_map_size = 50
+    feature_map_size = 100
 
     inputs = Input(shape=(input_dim, 1))
 
@@ -196,7 +212,7 @@ def build_inception_layer(input_dim, output_dim):
     conv_3 = Conv1D(output_size, 3, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(conv_3)
     conv_3 = Dropout(DROPOUT_RATE)(conv_3)
 
-    pool_1 = MaxPool1D(pool_size, strides=1, padding='same')(bn_input)
+    pool_1 = MaxPool1D(pool_size, padding='same')(bn_input)
     conv_4 = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(pool_1)
     conv_4 = Dropout(DROPOUT_RATE)(conv_4)
 
@@ -204,6 +220,62 @@ def build_inception_layer(input_dim, output_dim):
 
     flatten = Flatten()(output)
     dense = Dense(feature_map_size, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2(0.01))(flatten)
+    dense = Dropout(DROPOUT_RATE)(dense)
+    output = Dense(output_dim, activation=softmax)(dense)
+
+    model = Model(inputs=inputs, outputs=output)
+    return model
+
+
+def split_functional(input_dim, output_dim):
+    from keras.models import Model
+    from keras.regularizers import l1_l2
+    from keras.layers import Conv1D, Flatten, Dropout, Dense, Input, concatenate, BatchNormalization, Lambda
+    from keras.activations import softmax, selu
+
+    def slice_before(t):
+        return t[:, :4, :]
+
+    def slice_after(t):
+        return t[:, 4:, :]
+
+    DROPOUT_RATE = 0.5
+    ACTIVATION_FUNCTION = selu
+    output_size = 16
+    feature_map_size = 50
+
+    inputs = Input(shape=(input_dim, 1))
+
+    knuckles = Lambda(slice_before)(inputs)
+    fingers = Lambda(slice_after)(inputs)
+
+    print(fingers.shape)
+    print(knuckles.shape)
+
+    bn_fingers = BatchNormalization()(fingers)
+    bn_knuckles = BatchNormalization()(knuckles)
+
+    reconcat = concatenate([bn_fingers, bn_knuckles], axis=1)
+    conv = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2())(reconcat)
+
+    conv_knuckles = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2())(bn_knuckles)
+    conv_knuckles = Dropout(DROPOUT_RATE)(conv_knuckles)
+    conv_knuckles = Conv1D(output_size, 2, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2())(conv_knuckles)
+    conv_knuckles = Dropout(DROPOUT_RATE)(conv_knuckles)
+    conv_knuckles = Conv1D(output_size, 2, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2())(conv_knuckles)
+    conv_knuckles = Dropout(DROPOUT_RATE)(conv_knuckles)
+
+    conv_fingers = Conv1D(output_size, 1, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2())(bn_fingers)
+    conv_fingers = Dropout(DROPOUT_RATE)(conv_fingers)
+    conv_fingers = Conv1D(output_size, 2, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2())(conv_fingers)
+    conv_fingers = Dropout(DROPOUT_RATE)(conv_fingers)
+    conv_fingers = Conv1D(output_size, 4, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2())(conv_fingers)
+    conv_fingers = Dropout(DROPOUT_RATE)(conv_fingers)
+
+    concat = concatenate([conv_knuckles, conv_fingers, conv], axis=1)
+
+    flatten = Flatten()(concat)
+    dense = Dense(feature_map_size, activation=ACTIVATION_FUNCTION, kernel_regularizer=l1_l2())(flatten)
     dense = Dropout(DROPOUT_RATE)(dense)
     output = Dense(output_dim, activation=softmax)(dense)
 

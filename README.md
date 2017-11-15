@@ -26,9 +26,9 @@ Datasets consist of 15 columns. The first one determines the hand configuration.
 - [x] train, train-val, val, test
 - [x] Try L1 regulization (though the sparsity of the features is not certain)
 - [x] decide stopping strategy (try early stopping)
+- [x] explore how linearly separable is our data and try SVMs
+- [x] consider separating the knuckle inputs with the finger inputs
 - [ ] Check unsupervised pre-training
-- [ ] explore how linearly separable is our data and try SVMs
-- [ ] consider separating the knuckle inputs with the finger inputs
 - [ ] hyper-parameter search script (check hyperas)
 - [ ] upload graph of the models
 - [ ] integrate in Virtual Sign
