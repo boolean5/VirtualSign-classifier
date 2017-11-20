@@ -28,8 +28,11 @@ Datasets consist of 15 columns. The first one determines the hand configuration.
 - [x] decide stopping strategy (try early stopping)
 - [x] explore how linearly separable is our data and try SVMs
 - [x] consider separating the knuckle inputs with the finger inputs
+- [x] integrate in Virtual Sign
 - [ ] Check unsupervised pre-training
 - [ ] hyper-parameter search script (check hyperas)
 - [ ] upload graph of the models
-- [ ] integrate in Virtual Sign
+- [ ] add the SVM classifier to Virtual Sign
+- [ ] use the new model of gloves: add pitch, roll and yaw inputs, adapt calibration process, output 57 instead of 42 classes
+- [ ] capture new dataset
 
