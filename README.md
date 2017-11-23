@@ -1,7 +1,7 @@
 # VirtualSign
 
 ### Dataset format:
-Datasets consist of 15 columns. The first one determines the hand configuration. The rest correspond to the data gloves sensors input.  Each hand configuration is measured 10 times.
+Datasets consist of 18 columns. The first one determines the hand configuration. The rest correspond to the data gloves sensors input.  Each hand configuration is measured 10 times.
 
 ### TODO list:
 - [x] review architecture (add multiple filters)

@@ -34,7 +34,7 @@ def create_dataset(path, deletedups=False, randomize=True, drop_digits=6, includ
     import re
 
     sensors = ['id', 'thu-near', 'thu-far', 'thu-ind', 'ind-near', 'ind-far', 'ind-mid', 'mid-near', 'mid-far',
-               'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far']
+               'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far', 'yaw', 'pitch', 'roll']
     frames = []
     if os.path.isdir(path):
         for root, dirs, files in os.walk(path):
@@ -60,7 +60,7 @@ def create_dataset(path, deletedups=False, randomize=True, drop_digits=6, includ
              'ind-near_y',
              'ind-far_x', 'ind-far_y', 'ind-mid_x', 'ind-mid_y', 'mid-near_x', 'mid-near_y', 'mid-far_x', 'mid-far_y',
              'mid-rin_x', 'mid-rin_y', 'rin-near_x', 'rin-near_y', 'rin-far_x', 'rin-far_y', 'rin-lil_x', 'rin-lil_y',
-             'lil-near_x', 'lil-near_y', 'lil-far_x', 'lil-far_y']]
+             'lil-near_x', 'lil-near_y', 'lil-far_x', 'lil-far_y', 'yaw_x', 'yaw_y', 'pitch_x', 'pitch_y', 'roll_x', 'roll_y']]
 
     if deletedups:
         dataset = dataset.drop_duplicates().reset_index(drop=True)
@@ -74,7 +74,7 @@ def create_dataset(path, deletedups=False, randomize=True, drop_digits=6, includ
 
     if group_fingers:
         dataset = dataset[['id', 'thu-ind', 'ind-mid', 'mid-rin', 'rin-lil', 'thu-near', 'thu-far', 'ind-near',
-                           'ind-far', 'mid-near', 'mid-far', 'rin-near', 'rin-far', 'lil-near', 'lil-far']]
+                           'ind-far', 'mid-near', 'mid-far', 'rin-near', 'rin-far', 'lil-near', 'lil-far', 'yaw', 'pitch', 'roll']]
 
     return dataset
 
@@ -286,7 +286,7 @@ def split_functional(input_dim, output_dim):
 def last_to_first():
     df = create_dataset('datasets/old_datasets/dataset_marcelo_RG.txt', deletedups=False, randomize=False)
     df.columns = ['thu-near', 'thu-far', 'thu-ind', 'ind-near', 'ind-far', 'ind-mid', 'mid-near', 'mid-far',
-                  'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far', 'id']
+                  'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far', 'yaw', 'pitch', 'roll', 'id']
 
     cols = df.columns.tolist()
     cols = cols[-1:] + cols[:-1]

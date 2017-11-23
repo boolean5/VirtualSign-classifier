@@ -8,7 +8,7 @@ from sklearn.model_selection import KFold
 
 from utils import *
 
-SENSORS = 14
+SENSORS = 17
 BATCH_SIZE = 64
 EPOCHS = 100
 NUM_CLASSES = 42    # TODO: Get this from the data

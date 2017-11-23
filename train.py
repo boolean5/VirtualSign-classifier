@@ -12,7 +12,7 @@ from utils import *
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Hyper-parameters
-SENSORS = 14
+SENSORS = 17
 BATCH_SIZE = 64
 EPOCHS = 200
 NUM_CLASSES = 42  # TODO: Get this from the data

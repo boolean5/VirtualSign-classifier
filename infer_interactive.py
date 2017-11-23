@@ -19,7 +19,7 @@ for line in sys.stdin:
     input_array = list(map(float, line.split()))
     input_array = np.asarray(input_array)
     input_array = np.expand_dims(input_array, axis=0)
-    if input_array.shape[1] == 14:
+    if input_array.shape[1] == 17:
         input_array = np.expand_dims(input_array, axis=2)
         output = model.predict(input_array, batch_size=1, verbose=0)
         output = output.flatten()
