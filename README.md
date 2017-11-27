@@ -29,7 +29,7 @@ Datasets consist of 18 columns. The first one determines the hand configuration.
 - [x] explore how linearly separable is our data and try SVMs
 - [x] consider separating the knuckle inputs with the finger inputs
 - [x] integrate in Virtual Sign
-- [ ] Check unsupervised pre-training
+- [x] Check unsupervised pre-training
 - [ ] hyper-parameter search script (check hyperas)
 - [ ] upload graph of the models
 - [ ] add the SVM classifier to Virtual Sign
