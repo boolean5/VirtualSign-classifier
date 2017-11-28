@@ -4,7 +4,6 @@ import os
 import numpy as np
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.losses import categorical_crossentropy
-from keras.utils import np_utils
 
 from utils import *
 
@@ -12,7 +11,7 @@ from utils import *
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Hyper-parameters
-SENSORS = 17
+SENSORS = 14
 BATCH_SIZE = 64
 EPOCHS = 200
 NUM_CLASSES = 42  # TODO: Get this from the data
@@ -32,27 +31,12 @@ EPOCHS = args.epochs  # Epochs and batch size are assigned twice which is obsole
 BATCH_SIZE = args.batch  # how the hyper-parameter search script is called. Leaving as is for now.
 
 # Data loading & pre-processing
-training_set = create_dataset(dataset_path, randomize=False)
-dev_test_set = create_dataset('datasets/testing/', randomize=False)  # TODO: Make this randomization stratified
+x_train, y_train = create_dataset(dataset_path, NUM_CLASSES, label_index=1)
+x_dev, y_dev = create_dataset('datasets/testing/', NUM_CLASSES)  # TODO: Make this randomization stratified
 
-y_train, x_train = np.hsplit(training_set, [1])
-y_dev_test, x_dev_test = np.hsplit(dev_test_set, [1])
-
-splitPoint = int(np.ceil(len(y_dev_test) * 0.5))
-x_dev, x_test = np.vsplit(x_dev_test, [splitPoint])
-y_dev, y_test = np.vsplit(y_dev_test, [splitPoint])
-
-# I add these lines for our own datasets because they range from 1 to 42. This is not permanent
-y_train = y_train - 1
-# y_dev = y_dev - 1
-# y_test = y_test - 1
-
-x_train = np.expand_dims(x_train, axis=2)
-x_dev = np.expand_dims(x_dev, axis=2)
-x_test = np.expand_dims(x_test, axis=2)
-y_train = np_utils.to_categorical(y_train, NUM_CLASSES)
-y_dev = np_utils.to_categorical(y_dev, NUM_CLASSES)
-y_test = np_utils.to_categorical(y_test, NUM_CLASSES)
+splitPoint = int(np.ceil(len(y_dev) * 0.5))
+x_dev, x_test = np.vsplit(x_dev, [splitPoint])
+y_dev, y_test = np.vsplit(y_dev, [splitPoint])
 
 # Model building
 model = build_model(model_type, SENSORS, NUM_CLASSES)
