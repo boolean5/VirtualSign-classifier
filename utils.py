@@ -164,12 +164,12 @@ def build_functional(input_dim, output_dim):
     from keras.models import Model
     from keras.regularizers import l1_l2
     from keras.layers import Conv1D, Flatten, Dropout, Dense, Input, concatenate, BatchNormalization
-    from keras.activations import softmax, selu
+    from keras.activations import softmax, relu
 
     DROPOUT_RATE = 0.3
-    ACTIVATION_FUNCTION = selu
-    output_size = 16
-    feature_map_size = 100
+    ACTIVATION_FUNCTION = relu
+    output_size = 8
+    feature_map_size = 256
 
     inputs = Input(shape=(input_dim, 1))
 
