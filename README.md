@@ -30,8 +30,8 @@ Datasets consist of 18 columns. The first one determines the hand configuration.
 - [x] consider separating the knuckle inputs with the finger inputs
 - [x] integrate in Virtual Sign
 - [x] Check unsupervised pre-training
-- [ ] hyper-parameter search script (check hyperas)
-- [ ] upload graph of the models
+- [x] hyper-parameter search script (check hyperas)
+- [x] upload graph of the models
 - [ ] add the SVM classifier to Virtual Sign
 - [ ] use the new model of gloves: add pitch, roll and yaw inputs, adapt calibration process, output 57 instead of 42 classes
 - [ ] capture new dataset

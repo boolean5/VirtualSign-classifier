@@ -12,7 +12,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Hyper-parameters
 SENSORS = 14
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 EPOCHS = 200
 NUM_CLASSES = 42  # TODO: Get this from the data
 
@@ -45,7 +45,7 @@ model.compile(loss=categorical_crossentropy, optimizer='adam', metrics=['categor
 model.summary()
 
 callbacks = [ModelCheckpoint('saved_models/' + model_type + '.hdf5',
-                             monitor='val_loss',
+                             monitor='val_categorical_accuracy',
                              verbose=0,
                              save_best_only=True,
                              save_weights_only=False,
@@ -57,20 +57,20 @@ callbacks = [ModelCheckpoint('saved_models/' + model_type + '.hdf5',
              #             write_graph=True,
              #             write_grads=True,
              #             write_images=True),
-             EarlyStopping(patience=10)]
+             EarlyStopping(patience=15)]
 
 # Training
 hist = model.fit(x_train,
                  y_train,
                  batch_size=BATCH_SIZE,
-                 epochs=EPOCHS, verbose=0,
+                 epochs=EPOCHS, verbose=1,
                  validation_data=(x_dev, y_dev),
                  shuffle=True,
                  callbacks=callbacks)
 
 min_val_loss_epoch = min(range(len(hist.history['val_loss'])), key=hist.history['val_loss'].__getitem__)
 min_val_loss = hist.history['val_loss'][min_val_loss_epoch]
-min_acc = hist.history['categorical_accuracy'][min_val_loss_epoch]
+min_acc = hist.history['val_categorical_accuracy'][min_val_loss_epoch]
 print('Minimum validation loss of {:.4f} at epoch {} with accuracy of {:.2f}%.'.format(min_val_loss,
                                                                                        min_val_loss_epoch + 1,
                                                                                        min_acc * 100))
@@ -78,6 +78,6 @@ print('Minimum validation loss of {:.4f} at epoch {} with accuracy of {:.2f}%.'.
 os.rename('saved_models/{}.hdf5'.format(model_type),
           'saved_models/{}-{:.4f}-{:0>3}.hdf5'.format(model_type, min_val_loss, min_val_loss_epoch + 1))
 
-# Evaluation
+# # Evaluation
 loss, acc = model.evaluate(x_test, y_test, verbose=0)
 print('Results on test set: {:.4f} loss, {:.2f} accuracy.'.format(loss, acc * 100))
