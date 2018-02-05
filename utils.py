@@ -28,8 +28,10 @@ def first_col_to_last(dataframe, columns):
     return df
 
 
-def create_dataset(path, num_classes, deletedups=False, randomize=False, drop_digits=6, include_raw=False,
+def create_dataset(path, num_classes, deletedups=False, randomize=False, drop_digits=6, raw_data=False,
+                   transform_angles=True,
                    group_fingers=False,
+                   to_nn=False,
                    label_index=0):
     import pandas as pd
     import numpy as np
@@ -37,43 +39,42 @@ def create_dataset(path, num_classes, deletedups=False, randomize=False, drop_di
     import os
     import re
 
-    # sensors = ['id', 'thu-near', 'thu-far', 'thu-ind', 'ind-near', 'ind-far', 'ind-mid', 'mid-near', 'mid-far',
-    #            'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far', 'yaw', 'pitch', 'roll']
-
     sensors = ['id', 'thu-near', 'thu-far', 'thu-ind', 'ind-near', 'ind-far', 'ind-mid', 'mid-near', 'mid-far',
-               'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far']
+               'mid-rin', 'rin-near', 'rin-far', 'rin-lil', 'lil-near', 'lil-far', 'yaw', 'pitch', 'roll']
+
     frames = []
     if os.path.isdir(path):
+        # Move to raw folder because angles are correctly measured only there
+        path += '/raw'
         for root, dirs, files in os.walk(path):
             for filename in files:
+                print(filename)
                 with open(os.path.join(root, filename)) as infile:
                     df = pd.read_csv(infile, delim_whitespace=True, names=sensors, usecols=sensors, header=None)
+
+                if not raw_data:
+                    # Change to scaled file but keep yaw, pitch, roll
+                    euler_angles = df[df.columns[-3:]]
+                    sc_root = re.sub('/raw', '/scaled', root)
+                    sc_filename = re.sub('RAW', 'NEW', filename)
+
+                    with open(os.path.join(sc_root, sc_filename)) as infile:
+                        df = pd.read_csv(infile, delim_whitespace=True, names=sensors, usecols=sensors, header=None)
+                        df[df.columns[-3:]] = euler_angles
                 frames.append(df)
     else:
-        with open(path) as infile:
-            df = pd.read_csv(infile, delim_whitespace=True, names=sensors, usecols=sensors, header=None)
-            frames.append(df)
+        print('Enter path to raw and scaled directories')
+        exit(0)
 
-    dataset = pd.concat(frames, ignore_index=True)
-
-    if include_raw:
-        raw_path = re.sub('scaled', 'raw', path)
-        raw_data = create_dataset(path=raw_path, deletedups=deletedups, randomize=randomize,
-                                  group_fingers=group_fingers)
-
-        dataset = dataset.merge(raw_data, how='inner', left_index=True, right_index=True)
-        dataset = dataset[
-            ['id', 'thu-near_x', 'thu-near_y', 'thu-far_x', 'thu-far_y', 'thu-ind_x', 'thu-ind_y', 'ind-near_x',
-             'ind-near_y',
-             'ind-far_x', 'ind-far_y', 'ind-mid_x', 'ind-mid_y', 'mid-near_x', 'mid-near_y', 'mid-far_x', 'mid-far_y',
-             'mid-rin_x', 'mid-rin_y', 'rin-near_x', 'rin-near_y', 'rin-far_x', 'rin-far_y', 'rin-lil_x', 'rin-lil_y',
-             'lil-near_x', 'lil-near_y', 'lil-far_x', 'lil-far_y', 'yaw_x', 'yaw_y', 'pitch_x', 'pitch_y', 'roll_x',
-             'roll_y']]
+    try:
+        dataset = pd.concat(frames, ignore_index=True)
+    except ValueError:
+        print('No data found')
+        exit(0)
 
     if deletedups:
         dataset = dataset.drop_duplicates().reset_index(drop=True)
 
-    # TODO: This randomization has to be stratified
     if randomize:
         dataset = dataset.sample(frac=1).reset_index(drop=True)
 
@@ -85,12 +86,17 @@ def create_dataset(path, num_classes, deletedups=False, randomize=False, drop_di
                            'ind-far', 'mid-near', 'mid-far', 'rin-near', 'rin-far', 'lil-near', 'lil-far', 'yaw',
                            'pitch', 'roll']]
 
-    y, x = np.hsplit(dataset, [1])
+    if transform_angles:
+        dataset[dataset.columns[-3:]] = dataset[dataset.columns[-3:]].apply(np.cos)
+
+    y, x = np.hsplit(dataset.as_matrix(columns=df.columns), [1])
     y = y - label_index
 
-    x = np.expand_dims(x, axis=2)
-    y = np_utils.to_categorical(y, num_classes)
-    return x, y
+    if to_nn:
+        x = np.expand_dims(x, axis=2)
+        y = np_utils.to_categorical(y, num_classes)
+
+    return x, y, dataset
 
 
 def build_model(model_type, input_dim, output_dim):
